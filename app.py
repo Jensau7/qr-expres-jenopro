@@ -1,3 +1,5 @@
+cd ~/qr-expres-jenopro
+cat << 'EOF' > app.py
 from flask import Flask, render_template, request, send_file
 import qrcode
 import io
@@ -5,30 +7,26 @@ import urllib.parse
 
 app = Flask(__name__)
 
-# Tu WhatsApp real para recibir las compras ($50 MXN)
 MI_WHATSAPP = "526143665161"
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    if request.method == 'POST':
-        negocio = request.form.get('negocio', 'Tu Negocio Aquí')
-        telefono = request.form.get('telefono', MI_WHATSAPP)
-        mensaje = request.form.get('mensaje', '¡Hola! Vi tu tarjeta digital y quiero más información.')
-        
-        # Limpiar teléfono de espacios y caracteres extra
-        telefono_clean = ''.join(filter(str.isdigit, telefono))
-        
-        # Generar URL de WhatsApp del cliente
-        msg_encoded = urllib.parse.quote(mensaje)
-        wa_url = f"https://wa.me/{telefono_clean}?text={msg_encoded}"
-        
-        # Generar URL para que te compren la activación a ti
-        buy_msg = urllib.parse.quote(f"Hola, quiero activar mi tarjeta digital para mi negocio: {negocio}")
-        buy_url = f"https://wa.me/{MI_WHATSAPP}?text={buy_msg}"
-        
-        return render_template('preview.html', negocio=negocio, telefono=telefono_clean, wa_url=wa_url, buy_url=buy_url)
-    
     return render_template('index.html')
+
+@app.route('/preview', methods=['POST'])
+def preview():
+    negocio = request.form.get('negocio', 'Tu Negocio Aquí')
+    telefono = request.form.get('telefono', MI_WHATSAPP)
+    mensaje = request.form.get('mensaje', '¡Hola! Vi tu tarjeta digital y quiero más información.')
+    
+    telefono_clean = ''.join(filter(str.isdigit, telefono))
+    msg_encoded = urllib.parse.quote(mensaje)
+    wa_url = f"https://wa.me/{telefono_clean}?text={msg_encoded}"
+    
+    buy_msg = urllib.parse.quote(f"Hola, quiero activar mi tarjeta digital para mi negocio: {negocio}")
+    buy_url = f"https://wa.me/{MI_WHATSAPP}?text={buy_msg}"
+    
+    return render_template('preview.html', negocio=negocio, telefono=telefono_clean, wa_url=wa_url, buy_url=buy_url)
 
 @app.route('/qr')
 def generate_qr():
@@ -41,3 +39,4 @@ def generate_qr():
 
 if __name__ == '__main__':
     app.run(debug=True)
+EOF
