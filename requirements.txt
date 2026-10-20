@@ -1,4 +1,10 @@
+cat << 'EOF' > requirements.txt
 Flask
 qrcode
 Pillow
 gunicorn
+EOF
+
+cat << 'EOF' > Procfile
+web: gunicorn app:app
+EOF
