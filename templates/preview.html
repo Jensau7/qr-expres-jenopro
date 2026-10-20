@@ -3,47 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ negocio }} - QR Exprés JeNoPro</title>
+    <title>Tarjeta Digital - {{ negocio }}</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .preview-card { background: white; max-width: 400px; width: 100%; border-radius: 16px; text-align: center; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .banner { background: linear-gradient(135deg, #0088ff, #00d2ff); color: white; padding: 20px; font-weight: bold; }
-        .badge { background: #ffcc00; color: #000; font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 12px; display: inline-block; margin: 15px 0 5px; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .card { background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; overflow: hidden; }
+        .header { background: #00a2ff; color: white; padding: 20px; }
+        .header h1 { margin: 0; font-size: 22px; }
+        .content { padding: 20px; }
+        .qr-box { margin: 15px 0; }
         .qr-box img { width: 200px; height: 200px; border-radius: 8px; }
-        .btn-wa { display: block; background: #25d366; color: white; text-decoration: none; padding: 12px; margin: 15px 20px; border-radius: 8px; font-weight: bold; }
-        .promo-box { background: #fafafa; border: 1px dashed #ccc; margin: 15px; padding: 15px; border-radius: 8px; font-size: 13px; text-align: left; }
-        .btn-buy { display: block; background: #ffcc00; color: black; text-decoration: none; text-align: center; padding: 10px; margin-top: 10px; border-radius: 6px; font-weight: bold; }
+        .btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; text-decoration: none; font-weight: bold; box-sizing: border-box; }
+        .btn-wa { background: #25d366; color: white; }
+        .btn-buy { background: #ffc107; color: #333; }
+        .info-box { background: #f8f9fa; border: 1px dashed #ccc; padding: 15px; border-radius: 8px; text-align: left; font-size: 13px; }
     </style>
 </head>
 <body>
-    <div class="preview-card">
-        <div class="banner">
+    <div class="card">
+        <div class="header">
             <small>⚡ QR EXPRÉS JENOPRO</small>
-            <h2>{{ negocio }}</h2>
+            <h1>{{ negocio }}</h1>
         </div>
-        
-        <span class="badge">! MUESTRA DE VISTA PREVIA</span>
-        
-        <div class="qr-box">
-            <img src="/qr?url={{ wa_url | urlencode }}" alt="Código QR">
+        <div class="content">
+            <div class="qr-box">
+                <img src="/qr?url={{ wa_url }}" alt="Código QR de WhatsApp">
+            </div>
+            <p><small>Escanea el código para abrir el chat de WhatsApp directo o toca el botón de abajo.</small></p>
+            
+            <a href="{{ wa_url }}" class="btn btn-wa" target="_blank">💬 Contactar por WhatsApp</a>
+            
+            <div class="info-box">
+                <strong>¿Quieres activar la versión permanente?</strong><br>
+                <small>Por solo $50 MXN obtienes tu QR permanente y sin marcas.</small>
+                <a href="{{ buy_url }}" class="btn btn-buy" target="_blank">👉 Activar mi Tarjeta por $50.00 MXN</a>
+            </div>
         </div>
-        
-        <p style="font-size: 12px; color: #666; padding: 0 15px;">Escanea el código para abrir el chat de WhatsApp directo o toca el botón de abajo.</p>
-        
-        <a href="{{ wa_url }}" target="_blank" class="btn-wa">💬 Contactar por WhatsApp</a>
-
-        <div class="promo-box">
-            <strong>¿Quieres activar la versión permanente?</strong><br>
-            <small>Por solo <strong>$50 MXN</strong> obtienes:</small>
-            <ul>
-                <li>Descarga de tu Código QR en Alta Definición para imprimir.</li>
-                <li>Enlace dinámico permanente sin marcas de agua.</li>
-                <li>Botón directo a tu WhatsApp funcionando 24/7.</li>
-            </ul>
-            <a href="{{ buy_url }}" target="_blank" class="btn-buy">👉 Activar mi Tarjeta por $50.00 MXN</a>
-        </div>
-        
-        <p style="font-size: 11px; color: #999; margin-bottom: 15px;">© QR Exprés JeNoPro - Tarjetas Digitales Rápidas</p>
     </div>
 </body>
 </html>
