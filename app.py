@@ -1,5 +1,3 @@
-cd ~/qr-expres-jenopro
-cat << 'EOF' > app.py
 from flask import Flask, render_template, request, send_file
 import qrcode
 import io
@@ -42,5 +40,3 @@ def generate_qr():
 
 if __name__ == '__main__':
     app.run(debug=True)
-EOF
-# Forzar compilacion limpia
