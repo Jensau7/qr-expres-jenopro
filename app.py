@@ -1,10 +1,12 @@
+cat << 'EOF' > app.py
 from flask import Flask, render_template, request, send_file
 import qrcode
 import io
+from urllib.parse import quote
 
 app = Flask(__name__)
 
-# Tu número oficial (sin ceros ni números de prueba)
+# Tu número real oficial
 MI_WHATSAPP = "526143665161"
 
 @app.route('/')
@@ -13,18 +15,20 @@ def index():
 
 @app.route('/preview', methods=['POST'])
 def preview():
-    negocio = request.form.get('negocio', 'INGENIO EN MADERA')
+    negocio = request.form.get('negocio', 'INGENIO EN MADERA').strip()
     telefono_input = request.form.get('telefono', '').strip()
     
-    # Si viene vacío o trae el número de prueba viejo, usamos tu número real
-    if not telefono_input or "0000000" in telefono_input:
+    # Limpiamos el número de cualquier caracter raro
+    telefono_limpio = telefono_input.replace('+', '').replace(' ', '').replace('-', '')
+    
+    # Si viene vacío, con ceros o con el ficticio viejo, forzamos tu número oficial
+    if not telefono_limpio or "0000000" in telefono_limpio:
         telefono = MI_WHATSAPP
     else:
-        telefono = telefono_input.replace('+', '').replace(' ', '').replace('-', '')
+        telefono = telefono_limpio
+
+    mensaje = request.form.get('mensaje', f'¡Hola! Vi tu tarjeta digital de {negocio} y me interesa información.').strip()
     
-    mensaje = request.form.get('mensaje', f'¡Hola! Vi tu tarjeta digital de {negocio} y quiero más información.')
-    
-    from urllib.parse import quote
     mensaje_encoded = quote(mensaje)
     wa_url = f"https://wa.me/{telefono}?text={mensaje_encoded}"
     
@@ -47,3 +51,4 @@ def qr_code():
 
 if __name__ == '__main__':
     app.run(debug=True)
+EOF
