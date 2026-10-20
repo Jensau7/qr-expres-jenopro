@@ -1,7 +1,3 @@
-cd ~/qr-expres-jenopro
-
-cat << 'EOF' > app.py
-import os
 from flask import Flask, render_template, request, send_file
 import qrcode
 import io
@@ -9,7 +5,6 @@ from urllib.parse import quote
 
 app = Flask(__name__)
 
-# Tu número oficial definitivo
 MI_WHATSAPP = "526143665161"
 
 @app.route('/')
@@ -19,7 +14,6 @@ def index():
 @app.route('/preview', methods=['POST', 'GET'])
 def preview():
     negocio = request.form.get('negocio', 'INGENIO EN MADERA').strip()
-    
     telefono = MI_WHATSAPP
     mensaje = f"¡Hola! Vi tu tarjeta digital de {negocio} y me interesa información."
     
@@ -44,6 +38,4 @@ def qr_code():
     return send_file(img_io, mimetype='image/png')
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-EOF
+    app.run()
