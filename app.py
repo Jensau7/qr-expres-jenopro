@@ -1,4 +1,4 @@
-cat << 'EOF' > app.py
+import os
 from flask import Flask, render_template, request, send_file
 import qrcode
 import io
@@ -17,9 +17,7 @@ def index():
 def preview():
     negocio = request.form.get('negocio', 'INGENIO EN MADERA').strip()
     
-    # Forzamos siempre tu número oficial
     telefono = MI_WHATSAPP
-    
     mensaje = f"¡Hola! Vi tu tarjeta digital de {negocio} y me interesa información."
     
     mensaje_encoded = quote(mensaje)
@@ -43,5 +41,5 @@ def qr_code():
     return send_file(img_io, mimetype='image/png')
 
 if __name__ == '__main__':
-    app.run(debug=True)
-EOF
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
