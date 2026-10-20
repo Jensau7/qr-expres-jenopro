@@ -3,34 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Exprés JeNoPro - Crear Tarjeta Digital</title>
+    <title>QR Exprés JeNoPro</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; max-width: 400px; width: 100%; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
-        h2 { text-align: center; color: #0088ff; margin-bottom: 5px; }
-        p.subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #333; }
-        input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-        button { width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
-        button:hover { background: #1ebe5d; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .card { background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; padding: 25px; box-sizing: border-box; text-align: center; }
+        h2 { color: #00a2ff; margin-top: 0; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #333; }
+        input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        textarea { resize: vertical; height: 80px; }
+        .btn-submit { background: #28a745; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>⚡ QR Exprés JeNoPro</h2>
-        <p class="subtitle">Crea tu tarjeta digital con enlace a WhatsApp</p>
+        <p style="font-size: 13px; color: #666;">Crea tu tarjeta digital con enlace a WhatsApp</p>
         
         <form action="/preview" method="POST">
-            <label for="negocio">Nombre de tu Negocio:</label>
-            <input type="text" id="negocio" name="negocio" value="INGENIO EN MADERA" required>
+            <div class="form-group">
+                <label>Nombre de tu Negocio:</label>
+                <input type="text" name="negocio" value="INGENIO EN MADERA" required>
+            </div>
             
-            <label for="telefono">Número de WhatsApp (con código de país):</label>
-            <input type="text" id="telefono" name="telefono" value="526143665161" required>
+            <div class="form-group">
+                <label>Número de WhatsApp (con código de país):</label>
+                <input type="text" name="telefono" value="526143665161" required>
+            </div>
             
-            <label for="mensaje">Mensaje inicial del cliente:</label>
-            <textarea id="mensaje" name="mensaje" rows="3">¡Hola! Vi tu tarjeta digital de INGENIO EN MADERA y quiero más información.</textarea>
+            <div class="form-group">
+                <label>Mensaje inicial del cliente:</label>
+                <textarea name="mensaje">¡Hola! Vi tu tarjeta digital de INGENIO EN MADERA y me interesa información.</textarea>
+            </div>
             
-            <button type="submit">🚀 Generar Tarjeta y QR</button>
+            <button type="submit" class="btn-submit">🚀 Generar Tarjeta y QR</button>
         </form>
     </div>
 </body>
