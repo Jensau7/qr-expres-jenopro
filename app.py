@@ -1,3 +1,5 @@
+cd ~/qr-expres-jenopro
+cat << 'EOF' > app.py
 from flask import Flask, render_template, request, send_file
 import qrcode
 import io
@@ -5,21 +7,28 @@ import urllib.parse
 
 app = Flask(__name__)
 
+# ¡CAMBIA ESTE NÚMERO por tu WhatsApp real donde recibirás los pagos!
+MI_WHATSAPP = "526141234567"  # Ejemplo: 52 + tu número de 10 dígitos
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         negocio = request.form.get('negocio', 'Tu Negocio Aquí')
-        telefono = request.form.get('telefono', '5210000000000')
+        telefono = request.form.get('telefono', MI_WHATSAPP)
         mensaje = request.form.get('mensaje', '¡Hola! Vi tu tarjeta digital y quiero más información.')
         
         # Limpiar teléfono de espacios y caracteres extra
         telefono_clean = ''.join(filter(str.isdigit, telefono))
         
-        # Generar URL de WhatsApp
+        # Generar URL de WhatsApp del cliente
         msg_encoded = urllib.parse.quote(mensaje)
         wa_url = f"https://wa.me/{telefono_clean}?text={msg_encoded}"
         
-        return render_template('preview.html', negocio=negocio, telefono=telefono_clean, wa_url=wa_url)
+        # Generar URL para que te compren la activación a ti
+        buy_msg = urllib.parse.quote(f"Hola, quiero activar mi tarjeta digital para mi negocio: {negocio}")
+        buy_url = f"https://wa.me/{MI_WHATSAPP}?text={buy_msg}"
+        
+        return render_template('preview.html', negocio=negocio, telefono=telefono_clean, wa_url=wa_url, buy_url=buy_url)
     
     return render_template('index.html')
 
@@ -34,3 +43,4 @@ def generate_qr():
 
 if __name__ == '__main__':
     app.run(debug=True)
+EOF

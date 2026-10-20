@@ -1,3 +1,4 @@
+cat << 'EOF' > templates/preview.html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -40,10 +41,11 @@
                 <li>Enlace dinámico permanente sin marcas de agua.</li>
                 <li>Botón directo a tu WhatsApp funcionando 24/7.</li>
             </ul>
-            <a href="https://wa.me/526140000000?text=Hola,%20quiero%20activar%20mi%20tarjeta%20para%20{{ negocio | urlencode }}" class="btn-buy">👉 Activar mi Tarjeta por $50.00 MXN</a>
+            <a href="{{ buy_url }}" target="_blank" class="btn-buy">👉 Activar mi Tarjeta por $50.00 MXN</a>
         </div>
         
         <p style="font-size: 11px; color: #999; margin-bottom: 15px;">© QR Exprés JeNoPro - Tarjetas Digitales Rápidas</p>
     </div>
 </body>
 </html>
+EOF
