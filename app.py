@@ -18,7 +18,7 @@ def preview():
     mensaje_encoded = quote(mensaje)
     wa_url = f"https://wa.me/{telefono}?text={mensaje_encoded}"
     
-    # Genera la URL directa de la imagen del QR limpia y sin errores
+    # Genera la URL directa del código QR usando la API externa de qrserver
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={quote(wa_url)}"
     
     mensaje_compra = quote(f"¡Hola! Quiero activar la tarjeta digital permanente para mi negocio '{negocio}'.")
