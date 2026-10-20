@@ -1,5 +1,3 @@
-cd ~/qr-expres-jenopro
-cat << 'EOF' > app.py
 from flask import Flask, render_template, request, send_file
 import qrcode
 import io
@@ -7,8 +5,8 @@ import urllib.parse
 
 app = Flask(__name__)
 
-# ¡CAMBIA ESTE NÚMERO por tu WhatsApp real donde recibirás los pagos!
-MI_WHATSAPP = "526141234567"  # Ejemplo: 52 + tu número de 10 dígitos
+# Tu WhatsApp real para recibir las compras ($50 MXN)
+MI_WHATSAPP = "526143665161"
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -43,4 +41,3 @@ def generate_qr():
 
 if __name__ == '__main__':
     app.run(debug=True)
-EOF
