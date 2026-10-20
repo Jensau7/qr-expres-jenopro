@@ -11,7 +11,7 @@
         .header h1 { margin: 0; font-size: 22px; }
         .content { padding: 20px; }
         .qr-box { margin: 15px 0; }
-        .qr-box img { width: 200px; height: 200px; border-radius: 8px; }
+        .qr-box img { width: 200px; height: 200px; border-radius: 8px; border: 1px solid #ddd; padding: 5px; }
         .btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; text-decoration: none; font-weight: bold; box-sizing: border-box; }
         .btn-wa { background: #25d366; color: white; }
         .btn-buy { background: #ffc107; color: #333; }
@@ -26,7 +26,7 @@
         </div>
         <div class="content">
             <div class="qr-box">
-                <img src="/qr?url={{ wa_url }}" alt="Código QR de WhatsApp">
+                <img src="{{ qr_url }}" alt="Código QR de WhatsApp">
             </div>
             <p><small>Escanea el código para abrir el chat de WhatsApp directo o toca el botón de abajo.</small></p>
             
