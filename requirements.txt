@@ -1,4 +1,8 @@
+cd ~/qr-expres-jenopro
+
+cat << 'EOF' > requirements.txt
 flask
 gunicorn
-qrcode
+qrcode[pil]
 pillow
+EOF
