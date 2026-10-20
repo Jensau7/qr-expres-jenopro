@@ -15,11 +15,14 @@ def index():
 
 @app.route('/preview', methods=['POST'])
 def preview():
-    negocio = request.form.get('negocio', 'Tu Negocio Aquí')
+    negocio = request.form.get('negocio', 'Tu Negocio')
     telefono = request.form.get('telefono', MI_WHATSAPP)
     mensaje = request.form.get('mensaje', '¡Hola! Vi tu tarjeta digital y quiero más información.')
     
     telefono_clean = ''.join(filter(str.isdigit, telefono))
+    if not telefono_clean:
+        telefono_clean = MI_WHATSAPP
+        
     msg_encoded = urllib.parse.quote(mensaje)
     wa_url = f"https://wa.me/{telefono_clean}?text={msg_encoded}"
     
