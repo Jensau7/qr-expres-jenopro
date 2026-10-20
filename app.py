@@ -6,28 +6,21 @@ from urllib.parse import quote
 
 app = Flask(__name__)
 
-# Tu número real oficial
+# Tu número oficial definitivo
 MI_WHATSAPP = "526143665161"
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/preview', methods=['POST'])
+@app.route('/preview', methods=['POST', 'GET'])
 def preview():
     negocio = request.form.get('negocio', 'INGENIO EN MADERA').strip()
-    telefono_input = request.form.get('telefono', '').strip()
     
-    # Limpiamos el número de cualquier caracter raro
-    telefono_limpio = telefono_input.replace('+', '').replace(' ', '').replace('-', '')
+    # Forzamos siempre tu número oficial
+    telefono = MI_WHATSAPP
     
-    # Si viene vacío, con ceros o con el ficticio viejo, forzamos tu número oficial
-    if not telefono_limpio or "0000000" in telefono_limpio:
-        telefono = MI_WHATSAPP
-    else:
-        telefono = telefono_limpio
-
-    mensaje = request.form.get('mensaje', f'¡Hola! Vi tu tarjeta digital de {negocio} y me interesa información.').strip()
+    mensaje = f"¡Hola! Vi tu tarjeta digital de {negocio} y me interesa información."
     
     mensaje_encoded = quote(mensaje)
     wa_url = f"https://wa.me/{telefono}?text={mensaje_encoded}"
