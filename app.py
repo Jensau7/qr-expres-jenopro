@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# --- MODELOS ---
+# --- MODELOS DE LA BASE DE DATOS ---
 class Negocio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
@@ -31,8 +31,8 @@ class Producto(db.Model):
 with app.app_context():
     db.create_all()
 
-# Credencial de PRUEBA (reemplaza 'TU_TEST_ACCESS_TOKEN' con tu token de desarrollador 'TEST-...')
-MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', 'TEST-6064762100649336-102105-c9c4e7819f238771f3a72af8897b15c2-2903412042')
+# --- CONFIGURACIÓN MERCADO PAGO ---
+MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', 'APP_USR-650264623324783-102109-c9aab1f86523917492f1ea4d6966ff1e-3782800866')
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
 DOMAIN_URL = "https://qr-expres-jenopro.onrender.com"
 
@@ -131,7 +131,7 @@ def ver_menu(slug):
     negocio = Negocio.query.filter_by(slug=slug).first_or_404()
     return render_template('menu.html', negocio=negocio)
 
-# --- MERCADO PAGO (PAGO Y ACTIVACIÓN EN PRUEBAS) ---
+# --- PROCESAMIENTO DE PAGO ---
 @app.route('/pagar/<int:negocio_id>', methods=['POST'])
 def pagar_activacion(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
