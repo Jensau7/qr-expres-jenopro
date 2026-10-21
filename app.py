@@ -5,18 +5,13 @@ import mercadopago
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_qr_jenopro'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///jenopro.db')
+# Cambiamos el nombre a jenopro_v2.db para recrear la tabla limpia con email y password
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///jenopro_v2.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-with app.app_context():
-    db.create_all()
-
-MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', 'APP_USR-6064762100649336-102105-c9c4e7819f238771f3a72af8897b15c2-2903412042')
-sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
-DOMAIN_URL = "https://qr-expres-jenopro.onrender.com"
-
+# --- MODELOS ---
 class Negocio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
@@ -25,7 +20,23 @@ class Negocio(db.Model):
     email = db.Column(db.String(100), nullable=True)
     password = db.Column(db.String(100), nullable=True)
     estado = db.Column(db.String(20), default='Draft')
+    productos = db.relationship('Producto', backref='negocio', lazy=True)
 
+class Producto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    precio = db.Column(db.Float, nullable=False)
+    descripcion = db.Column(db.Text, nullable=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
+
+with app.app_context():
+    db.create_all()
+
+MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', 'APP_USR-6064762100649336-102105-c9c4e7819f238771f3a72af8897b15c2-2903412042')
+sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
+DOMAIN_URL = "https://qr-expres-jenopro.onrender.com"
+
+# --- RUTAS ---
 @app.route('/')
 def index():
     return render_template('registro.html')
@@ -38,8 +49,6 @@ def registro():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        print(f"RECIBIDO -> Nombre: {nombre}, Tel: {telefono}, Email: {email}") # Depuración en Render
-
         if not nombre or not telefono or not email or not password:
             flash('Por favor completa todos los campos requeridos.', 'danger')
             return render_template('registro.html')
