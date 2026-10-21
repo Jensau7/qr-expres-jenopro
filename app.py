@@ -10,7 +10,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Crear las tablas automáticamente al arrancar la aplicación en Render
 with app.app_context():
     db.create_all()
 
@@ -26,6 +25,8 @@ class Negocio(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     slug = db.Column(db.String(100), unique=True, nullable=False)
     telefono = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(100), nullable=True)
+    password = db.Column(db.String(100), nullable=True)
     estado = db.Column(db.String(20), default='Draft')  # Draft o Active
     productos = db.relationship('Producto', backref='negocio', lazy=True)
 
@@ -46,13 +47,23 @@ def registro():
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         telefono = request.form.get('telefono')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
         if not nombre or not telefono:
-            flash('Por favor completa todos los campos requeridos.', 'danger')
-            return redirect(url_for('index'))
+            flash('Por favor completa los campos requeridos.', 'danger')
+            return render_template('registro.html')
             
         slug = nombre.lower().replace(" ", "-")
         
-        nuevo_negocio = Negocio(nombre=nombre, telefono=telefono, slug=slug, estado='Draft')
+        nuevo_negocio = Negocio(
+            nombre=nombre, 
+            telefono=telefono, 
+            email=email, 
+            password=password, 
+            slug=slug, 
+            estado='Draft'
+        )
         db.session.add(nuevo_negocio)
         db.session.commit()
         
