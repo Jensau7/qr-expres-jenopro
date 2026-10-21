@@ -57,13 +57,18 @@
             transition: background 0.3s;
         }
         button:hover { background: #d68910; }
+        .link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .link a { color: #f39c12; text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>⚡ QR JENOPRO</h2>
         
-        <!-- Mensajes de error flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -77,7 +82,7 @@
             <input type="text" name="nombre" placeholder="Ej. Tacos El Paisa" required>
 
             <label>WHATSAPP DEL NEGOCIO (CON LADA)</label>
-            <input type="text" name="telefono" placeholder="Ej. 526141234567" required>
+            <input type="text" name="telefono" placeholder="Ej. 520000000000" required>
 
             <label>CORREO ELECTRÓNICO</label>
             <input type="email" name="email" placeholder="tucorreo@gmail.com" required>
@@ -87,6 +92,10 @@
 
             <button type="submit">REGISTRAR Y CREAR MI PANEL →</button>
         </form>
+
+        <div class="link">
+            ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
+        </div>
     </div>
 </body>
 </html>
