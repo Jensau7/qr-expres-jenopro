@@ -1,8 +1,4 @@
-cd ~/qr-expres-jenopro
-
-cat << 'EOF' > requirements.txt
-flask
-gunicorn
-qrcode[pil]
-pillow
-EOF
+Flask==3.0.2
+qrcode==7.4.2
+Pillow==10.2.0
+gunicorn==21.2.0
