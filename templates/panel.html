@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | QR JeNoPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-950 text-white min-h-screen pb-12">
+
+    <!-- Encabezado del Panel -->
+    <header class="bg-gray-900 border-b border-gray-800 px-4 py-4 sticky top-0 z-10">
+        <div class="max-w-xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-amber-500 font-black text-xl"><i class="fas fa-bolt"></i></span>
+                <h1 class="font-bold text-lg text-white truncate">{{ negocio.nombre }}</h1>
+            </div>
+            <a href="/card/{{ negocio.id }}" target="_blank" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center">
+                <i class="fas fa-qrcode mr-1"></i> Ver Menú / QR
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-xl mx-auto px-4 mt-6 space-y-6">
+
+        <!-- Banner de Activación / Estado -->
+        <div class="bg-gray-900 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-400 font-semibold uppercase">Estado de la cuenta</p>
+                <p class="text-sm font-bold text-amber-400">Modo Borrador / Demo</p>
+            </div>
+            <a href="https://wa.me/526141366516?text=Hola%20Noe,%20quiero%20activar%20mi%20menu%20de:%20{{ negocio.nombre }}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center">
+                <i class="fab fa-whatsapp mr-1 text-sm"></i> Activar ($50 MXN)
+            </a>
+        </div>
+
+        <!-- Lista de Productos -->
+        <section class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl">
+            <h2 class="text-base font-black uppercase text-amber-500 mb-4 flex items-center">
+                <i class="fas fa-utensils mr-2"></i> Mis Productos / Servicios
+            </h2>
+
+            {% if productos %}
+                <div class="space-y-3">
+                    {% for prod in productos %}
+                    <div class="flex items-center justify-between bg-gray-800/60 p-3 rounded-xl border border-gray-700/50">
+                        <div class="flex items-center space-x-3">
+                            {% if prod.foto %}
+                                <img src="{{ prod.foto }}" class="w-12 h-12 rounded-lg object-cover">
+                            {% else %}
+                                <div class="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h3 class="font-bold text-sm text-white">{{ prod.nombre }}</h3>
+                                <p class="text-xs font-bold text-amber-400">${{ prod.precio }} MXN</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-6 text-gray-500">
+                    <i class="fas fa-folder-open text-3xl mb-2 block"></i>
+                    <p class="text-xs">Aún no has agregado productos a tu menú.</p>
+                </div>
+            {% endif %}
+        </section>
+
+    </main>
+
+</body>
+</html>
