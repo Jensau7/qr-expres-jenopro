@@ -4,61 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro | QR JeNoPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0b0f19;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #161b22;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { text-align: center; color: #f39c12; margin-bottom: 20px; }
+        .alert {
+            background: #721c24;
+            color: #f8d7da;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        label { font-size: 14px; color: #aaa; display: block; margin-top: 10px; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #fff;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background: #f39c12;
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        button:hover { background: #d68910; }
+    </style>
 </head>
-<body class="bg-gray-950 text-white min-h-screen flex items-center justify-center px-4 py-5">
-    <div class="max-w-md w-full bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
+<body>
+    <div class="card">
+        <h2>⚡ QR JENOPRO</h2>
         
-        <div class="text-center mb-6">
-            <span class="text-amber-500 font-bold text-xl"><i class="fas fa-bolt"></i> QR JENOPRO</span>
-            <h1 class="text-2xl font-black uppercase tracking-wide mt-2 text-white">Crea tu Menú o Tarjeta</h1>
-            <p class="text-xs text-gray-400 mt-1">Empieza a digitalizar tu negocio en segundos.</p>
-        </div>
-
+        <!-- Mensajes de error flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="mb-4 p-3 rounded-lg text-xs font-semibold bg-red-900 text-red-200 border border-red-700">
-                  {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
 
-        <form action="/registro" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Nombre del Negocio</label>
-                <input type="text" name="nombre_negocio" required placeholder="Ej. Tacos El Paisa" 
-                    class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-            </div>
+        <form action="/registro" method="POST">
+            <label>NOMBRE DEL NEGOCIO</label>
+            <input type="text" name="nombre" placeholder="Ej. Tacos El Paisa" required>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">WhatsApp del Negocio (con Lada)</label>
-                <input type="text" name="telefono_wa" required placeholder="Ej. 526141234567" 
-                    class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-            </div>
+            <label>WHATSAPP DEL NEGOCIO (CON LADA)</label>
+            <input type="text" name="telefono" placeholder="Ej. 526141234567" required>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Correo Electrónico</label>
-                <input type="email" name="email" required placeholder="tucorreo@gmail.com" 
-                    class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-            </div>
+            <label>CORREO ELECTRÓNICO</label>
+            <input type="email" name="email" placeholder="tucorreo@gmail.com" required>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Contraseña</label>
-                <input type="password" name="password" required placeholder="••••••••" 
-                    class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-            </div>
+            <label>CONTRASEÑA</label>
+            <input type="password" name="password" placeholder="********" required>
 
-            <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-950 font-black py-3 rounded-xl shadow-lg uppercase tracking-wider text-sm transition-all mt-2">
-                Registrar y Crear mi Panel <i class="fas fa-arrow-right ml-1"></i>
-            </button>
+            <button type="submit">REGISTRAR Y CREAR MI PANEL →</button>
         </form>
-
-        <div class="text-center mt-6 text-xs text-gray-500">
-            Sistema Autónomo Automatizado • QR JeNoPro
-        </div>
     </div>
 </body>
 </html>
