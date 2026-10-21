@@ -54,16 +54,27 @@ def registro():
             
         slug = nombre.lower().replace(" ", "-")
         
-        nuevo_negocio = Negocio(
-            nombre=nombre, 
-            telefono=telefono, 
-            email=email, 
-            password=password, 
-            slug=slug, 
-            estado='Draft'
-        )
-        db.session.add(nuevo_negocio)
-        db.session.commit()
+        # Evitar que truene si ya existe el nombre registrado
+        existente = Negocio.query.filter_by(slug=slug).first()
+        if existente:
+            flash('Ese nombre de negocio ya está registrado. Usa uno diferente.', 'danger')
+            return render_template('registro.html')
+        
+        try:
+            nuevo_negocio = Negocio(
+                nombre=nombre, 
+                telefono=telefono, 
+                email=email, 
+                password=password, 
+                slug=slug, 
+                estado='Draft'
+            )
+            db.session.add(nuevo_negocio)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al registrar: {str(e)}', 'danger')
+            return render_template('registro.html')
         
         return redirect(url_for('panel', negocio_id=nuevo_negocio.id))
     return render_template('registro.html')
@@ -96,7 +107,6 @@ def pagar_activacion(negocio_id):
     preference_response = sdk.preference().create(preference_data)
     return redirect(preference_response["response"]["init_point"])
 
-# --- RUTAS DE RETORNO Y MANEJO DE ERRORES ---
 @app.route('/pago/exitoso/<int:negocio_id>')
 def pago_exitoso(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
