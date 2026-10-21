@@ -10,6 +10,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# Crear las tablas automáticamente al arrancar la aplicación en Render
+with app.app_context():
+    db.create_all()
+
 # Credencial de Producción Mercado Pago
 MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', 'APP_USR-6064762100649336-102105-c9c4e7819f238771f3a72af8897b15c2-2903412042')
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
@@ -42,6 +46,10 @@ def registro():
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         telefono = request.form.get('telefono')
+        if not nombre or not telefono:
+            flash('Por favor completa todos los campos requeridos.', 'danger')
+            return redirect(url_for('index'))
+            
         slug = nombre.lower().replace(" ", "-")
         
         nuevo_negocio = Negocio(nombre=nombre, telefono=telefono, slug=slug, estado='Draft')
@@ -125,6 +133,4 @@ def pago_pendiente(negocio_id):
     return redirect(url_for('panel', negocio_id=negocio_id))
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(host='0.0.0.0', port=5000, debug=True)
