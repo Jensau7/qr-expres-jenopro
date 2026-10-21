@@ -1,9 +1,6 @@
 import os
-import io
-import base64
 import urllib.parse
 from flask import Flask, render_template, request
-import segno
 
 app = Flask(__name__)
 
@@ -17,17 +14,12 @@ def generar():
     telefono = request.form.get('telefono', '526143665161')
     mensaje = f"Hola, me interesa más información sobre los servicios de {negocio}."
     
-    # Enlace directo de WhatsApp
     wa_encoded_msg = urllib.parse.quote(mensaje)
     wa_url = f"https://wa.me/{telefono}?text={wa_encoded_msg}"
     
-    # Generar código QR localmente en memoria con Segno (Python puro)
-    qrcode = segno.make(wa_url)
-    buff = io.BytesIO()
-    # Guardar como PNG directamente en memoria
-    qrcode.save(buff, kind='png', scale=5, dark="#000000", light="#ffffff")
-    qr_base64 = base64.b64encode(buff.getvalue()).decode('utf-8')
-    qr_url = f"data:image/png;base64,{qr_base64}"
+    # URL directa del QR como usábamos al principio (rápida, estable y sin errores de carga)
+    encoded_wa_url = urllib.parse.quote(wa_url, safe='')
+    qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={encoded_wa_url}"
     
     buy_url = "https://www.paypal.com"
 
