@@ -5,7 +5,6 @@ import mercadopago
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key_qr_jenopro'
-# Cambiamos el nombre a jenopro_v2.db para recrear la tabla limpia con email y password
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///jenopro_v2.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -97,6 +96,7 @@ def pagar_activacion(negocio_id):
     preference_response = sdk.preference().create(preference_data)
     return redirect(preference_response["response"]["init_point"])
 
+# --- RUTAS DE RETORNO Y MANEJO DE ERRORES ---
 @app.route('/pago/exitoso/<int:negocio_id>')
 def pago_exitoso(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
@@ -104,6 +104,16 @@ def pago_exitoso(negocio_id):
     db.session.commit()
     flash('¡Pago acreditado con éxito! Tu cuenta ya está activa.', 'success')
     return redirect(url_for('panel', negocio_id=negocio.id))
+
+@app.route('/pago/fallido/<int:negocio_id>')
+def pago_fallido(negocio_id):
+    flash('El pago no se completó o regresaste al sitio.', 'warning')
+    return redirect(url_for('panel', negocio_id=negocio_id))
+
+@app.route('/pago/pendiente/<int:negocio_id>')
+def pago_pendiente(negocio_id):
+    flash('Tu pago está pendiente de acreditación.', 'info')
+    return redirect(url_for('panel', negocio_id=negocio_id))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
