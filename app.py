@@ -38,7 +38,7 @@ DOMAIN_URL = "https://qr-expres-jenopro.onrender.com"
 # --- RUTAS ---
 @app.route('/')
 def index():
-    return render_template('registro.html')
+    return redirect(url_for('login'))
 
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -54,10 +54,9 @@ def registro():
             
         slug = nombre.lower().replace(" ", "-")
         
-        # Evitar que truene si ya existe el nombre registrado
         existente = Negocio.query.filter_by(slug=slug).first()
         if existente:
-            flash('Ese nombre de negocio ya está registrado. Usa uno diferente.', 'danger')
+            flash('Ese negocio ya existe. Inicia sesión para acceder.', 'danger')
             return render_template('registro.html')
         
         try:
@@ -71,13 +70,29 @@ def registro():
             )
             db.session.add(nuevo_negocio)
             db.session.commit()
+            return redirect(url_for('panel', negocio_id=nuevo_negocio.id))
         except Exception as e:
             db.session.rollback()
-            flash(f'Error al registrar: {str(e)}', 'danger')
+            flash('Error al crear el registro.', 'danger')
             return render_template('registro.html')
-        
-        return redirect(url_for('panel', negocio_id=nuevo_negocio.id))
+            
     return render_template('registro.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        negocio = Negocio.query.filter_by(email=email, password=password).first()
+        
+        if negocio:
+            return redirect(url_for('panel', negocio_id=negocio.id))
+        else:
+            flash('Correo o contraseña incorrectos.', 'danger')
+            return render_template('login.html')
+            
+    return render_template('login.html')
 
 @app.route('/panel/<int:negocio_id>')
 def panel(negocio_id):
