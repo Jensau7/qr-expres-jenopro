@@ -3,40 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarjeta Digital - {{ negocio }}</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 10px; margin: 0; }
-        .card { background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; overflow: hidden; margin-top: 10px; }
-        .header { background: #00a2ff; color: white; padding: 15px; }
-        .header h1 { margin: 0; font-size: 20px; }
-        .content { padding: 15px; }
-        .qr-box { margin: 10px 0; }
-        .qr-box img { width: 220px; height: 220px; border-radius: 8px; border: 1px solid #ddd; padding: 5px; background: white; }
-        .btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; text-decoration: none; font-weight: bold; box-sizing: border-box; }
-        .btn-wa { background: #25d366; color: white; }
-        .btn-buy { background: #ffc107; color: #333; }
-        .info-box { background: #f8f9fa; border: 1px dashed #ccc; padding: 12px; border-radius: 8px; text-align: left; font-size: 12px; }
-    </style>
+    <title>{{ nombre_negocio }} | Menú y Catálogo Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    <div class="card">
-        <div class="header">
-            <small>⚡ QR EXPRÉS JENOPRO</small>
-            <h1>{{ negocio }}</h1>
+<body class="bg-gray-950 text-white min-h-screen">
+    <div class="max-w-md mx-auto px-4 py-6">
+        <!-- Banner del Negocio -->
+        <div class="bg-gradient-to-r from-amber-500 to-amber-700 p-6 rounded-2xl text-center shadow-xl mb-6">
+            <h1 class="text-2xl font-black text-gray-900 uppercase tracking-wide">{{ nombre_negocio }}</h1>
+            <p class="text-xs text-gray-900 font-semibold mt-1"><i class="fas fa-qrcode mr-1"></i> Menú / Catálogo Oficial</p>
         </div>
-        <div class="content">
-            <div class="qr-box">
-                <img src="{{ qr_url }}" alt="Código QR de WhatsApp">
-            </div>
-            <p><small>Escanea el código para abrir el chat de WhatsApp directo o toca el botón de abajo.</small></p>
 
-            <a href="{{ wa_url }}" class="btn btn-wa" target="_blank">💬 Contactar por WhatsApp</a>
+        <!-- Muestra del Código QR -->
+        <div class="bg-gray-900 p-4 rounded-2xl border border-gray-800 text-center mb-6">
+            <p class="text-xs text-gray-400 mb-2">Código QR del Negocio</p>
+            <img src="{{ qr_url }}" alt="Código QR {{ nombre_negocio }}" class="w-48 h-48 mx-auto rounded-lg border-4 border-white">
+        </div>
 
-            <div class="info-box">
-                <strong>¿Quieres activar la versión permanente?</strong><br>
-                <small>Por solo $50 MXN obtienes tu QR permanente y sin marcas.</small>
-                <a href="{{ buy_url }}" class="btn btn-buy" target="_blank">👉 Activar mi Tarjeta por $50.00 MXN</a>
-            </div>
+        <!-- Sección de Catálogo / Menú -->
+        <h2 class="text-lg font-bold text-amber-400 mb-4 flex items-center gap-2">
+            <i class="fas fa-store"></i> Menú y Productos
+        </h2>
+
+        <div class="space-y-4 mb-8">
+            {% if productos %}
+                {% for prod in productos %}
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 flex gap-4 items-center shadow">
+                    {% if prod.foto %}
+                        <img src="{{ prod.foto }}" class="w-20 h-20 object-cover rounded-lg bg-gray-800">
+                    {% else %}
+                        <div class="w-20 h-20 bg-gray-800 rounded-lg flex items-center justify-center text-gray-600">
+                            <i class="fas fa-image text-2xl"></i>
+                        </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <h3 class="font-bold text-white text-base">{{ prod.nombre }}</h3>
+                        <p class="text-amber-400 font-extrabold text-sm mt-1">{{ prod.precio }}</p>
+                        <a href="https://wa.me/{{ telefono_clean }}?text=Hola,%20quiero%20pedir:%20{{ prod.nombre }}" 
+                           target="_blank"
+                           class="inline-block mt-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-1 px-3 rounded-lg">
+                            <i class="fab fa-whatsapp"></i> Pedir esto
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl text-center text-gray-400 text-sm">
+                    No hay productos registrados aún.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Botón General de WhatsApp -->
+        <a href="{{ link_wa_cliente }}" target="_blank" 
+           class="w-full bg-green-500 hover:bg-green-600 text-white font-extrabold p-4 rounded-xl flex items-center justify-center gap-2 text-base shadow-lg mb-4">
+            <i class="fab fa-whatsapp text-2xl"></i> Contactar al Negocio
+        </a>
+
+        <!-- Candado PRO / Activación ($50 MXN) -->
+        <div class="bg-gray-900 border border-amber-500/30 rounded-2xl p-4 text-center mt-6">
+            <p class="text-xs text-amber-400 font-bold mb-1">¿Este es tu negocio?</p>
+            <p class="text-xs text-gray-400 mb-3">Activa tu tarjeta permanente y catálogo PRO por solo $50 MXN.</p>
+            <a href="{{ link_wa_activacion }}" target="_blank" 
+               class="inline-block bg-amber-500 hover:bg-amber-600 text-gray-950 text-xs font-black py-2 px-4 rounded-lg shadow">
+                Activar con Noé por $50 MXN
+            </a>
         </div>
     </div>
 </body>
