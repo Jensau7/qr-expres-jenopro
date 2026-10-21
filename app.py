@@ -50,8 +50,8 @@ def registro():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        if not nombre or not telefono:
-            flash('Por favor completa los campos requeridos.', 'danger')
+        if not nombre or not telefono or not email or not password:
+            flash('Por favor completa todos los campos requeridos.', 'danger')
             return render_template('registro.html')
             
         slug = nombre.lower().replace(" ", "-")
