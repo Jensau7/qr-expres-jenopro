@@ -8,18 +8,23 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/generar', methods=['POST'])
+@app.route('/generar', methods=['POST', 'GET'])
 def generar():
-    negocio = request.form.get('negocio', 'INGENIO EN MADERA')
-    telefono = request.form.get('telefono', '526143665161')
+    # Si recargan la página por GET, mandamos valores por defecto para que no truene
+    if request.method == 'GET':
+        negocio = "INGENIO EN MADERA"
+        telefono = "526143665161"
+    else:
+        negocio = request.form.get('negocio', 'INGENIO EN MADERA')
+        telefono = request.form.get('telefono', '526143665161')
+    
     mensaje = f"Hola, me interesa más información sobre los servicios de {negocio}."
     
     wa_encoded_msg = urllib.parse.quote(mensaje)
     wa_url = f"https://wa.me/{telefono}?text={wa_encoded_msg}"
     
-    # URL directa del QR como usábamos al principio (rápida, estable y sin errores de carga)
     encoded_wa_url = urllib.parse.quote(wa_url, safe='')
-    qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={encoded_wa_url}"
+    qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={encoded_wa_url}"
     
     buy_url = "https://www.paypal.com"
 
