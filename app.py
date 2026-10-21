@@ -1,29 +1,41 @@
+import os
+import base64
+from io import BytesIO
 from flask import Flask, render_template, request
-from urllib.parse import quote
+import qrcode
 
 app = Flask(__name__)
-
-MI_WHATSAPP = "526143665161"
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/preview', methods=['POST', 'GET'])
-def preview():
-    negocio = request.form.get('negocio', 'INGENIO EN MADERA').strip()
-    telefono = MI_WHATSAPP
-    mensaje = f"¡Hola! Vi tu tarjeta digital de {negocio} y me interesa información."
+@app.route('/generar', methods=['POST'])
+def generar():
+    negocio = request.form.get('negocio', 'Mi Negocio')
+    telefono = request.form.get('telefono', '526143665161')
+    mensaje = f"Hola, me interesa más información sobre los servicios de {negocio}."
     
-    mensaje_encoded = quote(mensaje)
-    wa_url = f"https://wa.me/{telefono}?text={mensaje_encoded}"
+    wa_url = f"https://wa.me/{telefono}?text={message_encode(mensaje)}"
     
-    qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={quote(wa_url)}"
+    qr = qrcode.QRCode(version=1, box_size=10, border=2)
+    qr.add_data(wa_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
     
-    mensaje_compra = quote(f"¡Hola! Quiero activar la tarjeta digital permanente para mi negocio '{negocio}'.")
-    buy_url = f"https://wa.me/{MI_WHATSAPP}?text={mensaje_compra}"
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    qr_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    qr_url = f"data:image/png;base64,{qr_base64}"
     
-    return render_template('preview.html', negocio=negocio, wa_url=wa_url, buy_url=buy_url, qr_url=qr_url)
+    buy_url = "https://www.paypal.com"
+
+    return render_template('preview.html', negocio=negocio, qr_url=qr_url, wa_url=wa_url, buy_url=buy_url)
+
+def message_encode(text):
+    import urllib.parse
+    return urllib.parse.quote(text)
 
 if __name__ == '__main__':
-    app.run()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
