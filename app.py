@@ -22,7 +22,7 @@ class Negocio(db.Model):
     productos = db.relationship('Producto', backref='negocio', lazy=True)
 
 class Producto(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.Text, nullable=True)
@@ -131,7 +131,16 @@ def ver_menu(slug):
     negocio = Negocio.query.filter_by(slug=slug).first_or_404()
     return render_template('menu.html', negocio=negocio)
 
-# --- PROCESAMIENTO DE PAGO ---
+# --- PROCESAMIENTO DE PAGO Y ACTIVACIÓN DE PRUEBA ---
+@app.route('/activar_directo/<int:negocio_id>')
+def activar_directo(negocio_id):
+    """Ruta de prueba rápida para omitir la pasarela y activar la cuenta inmediatamente."""
+    negocio = Negocio.query.get_or_404(negocio_id)
+    negocio.estado = 'Active'
+    db.session.commit()
+    flash('¡Cuenta activada manualmente para pruebas!', 'success')
+    return redirect(url_for('panel', negocio_id=negocio.id))
+
 @app.route('/pagar/<int:negocio_id>', methods=['POST'])
 def pagar_activacion(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
@@ -160,17 +169,17 @@ def pago_exitoso(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
     negocio.estado = 'Active'
     db.session.commit()
-    flash('¡Pago de prueba acreditado con éxito! Tu cuenta ya está activa.', 'success')
+    flash('¡Pago acreditado con éxito! Tu cuenta ya está activa.', 'success')
     return redirect(url_for('panel', negocio_id=negocio.id))
 
 @app.route('/pago/fallido/<int:negocio_id>')
 def pago_fallido(negocio_id):
-    flash('El pago de prueba no se completó.', 'warning')
+    flash('El pago no se completó.', 'warning')
     return redirect(url_for('panel', negocio_id=negocio_id))
 
 @app.route('/pago/pendiente/<int:negocio_id>')
 def pago_pendiente(negocio_id):
-    flash('Tu pago de prueba está pendiente.', 'info')
+    flash('Tu pago está pendiente.', 'info')
     return redirect(url_for('panel', negocio_id=negocio_id))
 
 if __name__ == '__main__':
