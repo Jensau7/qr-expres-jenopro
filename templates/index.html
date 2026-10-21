@@ -3,23 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Exprés JeNoPro</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        h2 { color: #00a2ff; margin-bottom: 20px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        button { background: #25d366; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    </style>
+    <title>Generador de Código QR Gratis y Tarjetas Digitales | QR Exprés JeNoPro</title>
+    <meta name="description" content="Crea tu código QR gratis con menú, catálogo digital y pedidos por WhatsApp para tu negocio.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    <div class="card">
-        <h2>⚡ QR EXPRÉS</h2>
-        <form action="/generar" method="POST">
-            <input type="text" name="negocio" value="INGENIO EN MADERA" required>
-            <input type="text" name="telefono" value="526143665161" required>
-            <button type="submit">Generar Tarjeta y QR</button>
+<body class="bg-gray-900 text-white min-h-screen font-sans">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <!-- Encabezado -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-amber-400 mb-2">QR EXPRÉS JENOPRO</h1>
+            <p class="text-gray-300 text-sm">Crea el Código QR y Catálogo Digital para tu Negocio</p>
+        </div>
+
+        <!-- Formulario Principal -->
+        <form action="/" method="POST" class="bg-gray-800 rounded-2xl p-6 shadow-2xl space-y-6">
+            <div>
+                <label class="block text-amber-400 font-bold mb-1">Nombre del Negocio</label>
+                <input type="text" name="nombre_negocio" placeholder="Ej: Tacos La Cubanita" required
+                    class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-amber-400">
+            </div>
+
+            <div>
+                <label class="block text-amber-400 font-bold mb-1">WhatsApp del Negocio (10 dígitos)</label>
+                <input type="tel" name="telefono_wa" placeholder="Ej: 6141234567" required
+                    class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-amber-400">
+            </div>
+
+            <div class="border-t border-gray-700 pt-4">
+                <h2 class="text-lg font-bold text-amber-400 mb-2"><i class="fas fa-utensils mr-2"></i>Agrega tus Productos / Menú</h2>
+                <p class="text-xs text-gray-400 mb-4">Añade los artículos que verán tus clientes al escanear el QR.</p>
+                
+                <div id="contenedor-productos" class="space-y-4">
+                    <div class="producto-item bg-gray-700 p-4 rounded-xl space-y-2 border border-gray-600">
+                        <input type="text" name="prod_nombre[]" placeholder="Nombre del producto (Ej: Taco de Bistec)" 
+                            class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600 text-sm">
+                        <div class="flex gap-2">
+                            <input type="text" name="prod_precio[]" placeholder="Precio (Ej: $25)" 
+                                class="w-1/2 p-2 rounded bg-gray-800 text-white border border-gray-600 text-sm">
+                            <input type="url" name="prod_foto[]" placeholder="URL Foto (Opcional)" 
+                                class="w-1/2 p-2 rounded bg-gray-800 text-white border border-gray-600 text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="agregarProducto()" class="mt-3 text-sm text-amber-400 hover:underline font-semibold flex items-center gap-1">
+                    <i class="fas fa-plus-circle"></i> Agregar otro producto
+                </button>
+            </div>
+
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-extrabold p-4 rounded-xl text-lg shadow-lg transition">
+                ¡GENERAR CÓDIGO QR Y CATÁLOGO!
+            </button>
         </form>
     </div>
+
+    <script>
+        function agregarProducto() {
+            const div = document.createElement('div');
+            div.className = 'producto-item bg-gray-700 p-4 rounded-xl space-y-2 border border-gray-600 mt-3';
+            div.innerHTML = `
+                <input type="text" name="prod_nombre[]" placeholder="Nombre del producto" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-600 text-sm">
+                <div class="flex gap-2">
+                    <input type="text" name="prod_precio[]" placeholder="Precio" class="w-1/2 p-2 rounded bg-gray-800 text-white border border-gray-600 text-sm">
+                    <input type="url" name="prod_foto[]" placeholder="URL Foto (Opcional)" class="w-1/2 p-2 rounded bg-gray-800 text-white border border-gray-600 text-sm">
+                </div>
+            `;
+            document.getElementById('contenedor-productos').appendChild(div);
+        }
+    </script>
 </body>
 </html>
