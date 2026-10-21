@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión | QR JeNoPro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0b0f19;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #161b22;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { text-align: center; color: #f39c12; margin-bottom: 20px; }
+        .alert {
+            background: #721c24;
+            color: #f8d7da;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        label { font-size: 14px; color: #aaa; display: block; margin-top: 10px; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #fff;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background: #f39c12;
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .link a { color: #f39c12; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>⚡ INICIAR SESIÓN</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/login" method="POST">
+            <label>CORREO ELECTRÓNICO</label>
+            <input type="email" name="email" placeholder="tucorreo@gmail.com" required>
+
+            <label>CONTRASEÑA</label>
+            <input type="password" name="password" placeholder="********" required>
+
+            <button type="submit">ENTRAR A MI PANEL →</button>
+        </form>
+
+        <div class="link">
+            ¿No tienes cuenta? <a href="/registro">Regístrate aquí</a>
+        </div>
+    </div>
+</body>
+</html>
