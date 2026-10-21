@@ -3,73 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración | QR JeNoPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Panel de Control - {{ negocio.nombre }} | QR JeNoPro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 15px 0;
+        }
+        .badge.draft {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .badge.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .btn-pagar {
+            background-color: #009ee3; /* Color oficial Mercado Pago */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .btn-pagar:hover {
+            background-color: #007eb5;
+        }
+        .info-box {
+            background-color: #e9ecef;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
-<body class="bg-gray-950 text-white min-h-screen pb-12">
+<body>
 
-    <!-- Encabezado del Panel -->
-    <header class="bg-gray-900 border-b border-gray-800 px-4 py-4 sticky top-0 z-10">
-        <div class="max-w-xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <span class="text-amber-500 font-black text-xl"><i class="fas fa-bolt"></i></span>
-                <h1 class="font-bold text-lg text-white truncate">{{ negocio.nombre }}</h1>
-            </div>
-            <a href="/card/{{ negocio.id }}" target="_blank" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center">
-                <i class="fas fa-qrcode mr-1"></i> Ver Menú / QR
-            </a>
-        </div>
-    </header>
-
-    <main class="max-w-xl mx-auto px-4 mt-6 space-y-6">
-
-        <!-- Banner de Activación / Estado -->
-        <div class="bg-gray-900 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
-            <div>
-                <p class="text-xs text-gray-400 font-semibold uppercase">Estado de la cuenta</p>
-                <p class="text-sm font-bold text-amber-400">Modo Borrador / Demo</p>
-            </div>
-            <a href="https://wa.me/526141366516?text=Hola%20Noe,%20quiero%20activar%20mi%20menu%20de:%20{{ negocio.nombre }}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center">
-                <i class="fab fa-whatsapp mr-1 text-sm"></i> Activar ($50 MXN)
-            </a>
-        </div>
-
-        <!-- Lista de Productos -->
-        <section class="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl">
-            <h2 class="text-base font-black uppercase text-amber-500 mb-4 flex items-center">
-                <i class="fas fa-utensils mr-2"></i> Mis Productos / Servicios
-            </h2>
-
-            {% if productos %}
-                <div class="space-y-3">
-                    {% for prod in productos %}
-                    <div class="flex items-center justify-between bg-gray-800/60 p-3 rounded-xl border border-gray-700/50">
-                        <div class="flex items-center space-x-3">
-                            {% if prod.foto %}
-                                <img src="{{ prod.foto }}" class="w-12 h-12 rounded-lg object-cover">
-                            {% else %}
-                                <div class="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400">
-                                    <i class="fas fa-image"></i>
-                                </div>
-                            {% endif %}
-                            <div>
-                                <h3 class="font-bold text-sm text-white">{{ prod.nombre }}</h3>
-                                <p class="text-xs font-bold text-amber-400">${{ prod.precio }} MXN</p>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+    <div class="card">
+        <h1>{{ negocio.nombre }}</h1>
+        <p><strong>Teléfono:</strong> {{ negocio.telefono }}</p>
+        
+        <!-- Estado actual de la cuenta -->
+        <div>
+            Estado de la cuenta: 
+            {% if negocio.estado == 'Active' %}
+                <span class="badge active">Activa 🟢</span>
             {% else %}
-                <div class="text-center py-6 text-gray-500">
-                    <i class="fas fa-folder-open text-3xl mb-2 block"></i>
-                    <p class="text-xs">Aún no has agregado productos a tu menú.</p>
-                </div>
+                <span class="badge draft">Borrador (Draft) 🟡</span>
             {% endif %}
-        </section>
+        </div>
 
-    </main>
+        {% if negocio.estado != 'Active' %}
+            <div class="info-box">
+                Tu cuenta requiere la activación de la licencia por <strong>$50 MXN</strong> para operar y generar códigos QR con normalidad.
+            </div>
+
+            <!-- Formulario seguro que dispara la ruta Flask para Mercado Pago -->
+            <form action="/pagar/{{ negocio.id }}" method="POST">
+                <button type="submit" class="btn-pagar">
+                    Pagar Activación ($50 MXN)
+                </button>
+            </form>
+        {% else %}
+            <div class="info-box" style="background-color: #d4edda; color: #155724;">
+                ¡Felicidades! Tu negocio se encuentra totalmente activo en QR JeNoPro.
+            </div>
+        {% endif %}
+    </div>
 
 </body>
 </html>
