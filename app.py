@@ -18,7 +18,7 @@ class Negocio(db.Model):
     telefono = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(100), nullable=True)
     password = db.Column(db.String(100), nullable=True)
-    estado = db.Column(db.String(20), default='Draft')
+    estado = db.Column(db.String(20), default='Draft') # Draft o Active
     productos = db.relationship('Producto', backref='negocio', lazy=True)
 
 class Producto(db.Model):
@@ -31,11 +31,12 @@ class Producto(db.Model):
 with app.app_context():
     db.create_all()
 
-MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', 'APP_USR-6064762100649336-102105-c9c4e7819f238771f3a72af8897b15c2-2903412042')
+# Credencial de PRUEBA (reemplaza 'TU_TEST_ACCESS_TOKEN' con tu token de desarrollador 'TEST-...')
+MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', 'TEST-6064762100649336-102105-c9c4e7819f238771f3a72af8897b15c2-2903412042')
 sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
 DOMAIN_URL = "https://qr-expres-jenopro.onrender.com"
 
-# --- RUTAS ---
+# --- RUTAS DE AUTENTICACIÓN ---
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -94,11 +95,43 @@ def login():
             
     return render_template('login.html')
 
+# --- PANEL DE CONTROL Y PRODUCTOS ---
 @app.route('/panel/<int:negocio_id>')
 def panel(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
     return render_template('panel.html', negocio=negocio)
 
+@app.route('/agregar_producto/<int:negocio_id>', methods=['POST'])
+def agregar_producto(negocio_id):
+    negocio = Negocio.query.get_or_404(negocio_id)
+    if negocio.estado != 'Active':
+        flash('Debes activar tu cuenta para agregar productos.', 'danger')
+        return redirect(url_for('panel', negocio_id=negocio.id))
+
+    nombre = request.form.get('nombre')
+    precio = request.form.get('precio')
+    descripcion = request.form.get('descripcion')
+
+    if nombre and precio:
+        nuevo_prod = Producto(
+            nombre=nombre,
+            precio=float(precio),
+            descripcion=descripcion,
+            negocio_id=negocio.id
+        )
+        db.session.add(nuevo_prod)
+        db.session.commit()
+        flash('Producto agregado con éxito.', 'success')
+
+    return redirect(url_for('panel', negocio_id=negocio.id))
+
+# --- MENÚ PÚBLICO (VISTA QR) ---
+@app.route('/menu/<slug>')
+def ver_menu(slug):
+    negocio = Negocio.query.filter_by(slug=slug).first_or_404()
+    return render_template('menu.html', negocio=negocio)
+
+# --- MERCADO PAGO (PAGO Y ACTIVACIÓN EN PRUEBAS) ---
 @app.route('/pagar/<int:negocio_id>', methods=['POST'])
 def pagar_activacion(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
@@ -127,17 +160,17 @@ def pago_exitoso(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
     negocio.estado = 'Active'
     db.session.commit()
-    flash('¡Pago acreditado con éxito! Tu cuenta ya está activa.', 'success')
+    flash('¡Pago de prueba acreditado con éxito! Tu cuenta ya está activa.', 'success')
     return redirect(url_for('panel', negocio_id=negocio.id))
 
 @app.route('/pago/fallido/<int:negocio_id>')
 def pago_fallido(negocio_id):
-    flash('El pago no se completó o regresaste al sitio.', 'warning')
+    flash('El pago de prueba no se completó.', 'warning')
     return redirect(url_for('panel', negocio_id=negocio_id))
 
 @app.route('/pago/pendiente/<int:negocio_id>')
 def pago_pendiente(negocio_id):
-    flash('Tu pago está pendiente de acreditación.', 'info')
+    flash('Tu pago de prueba está pendiente.', 'info')
     return redirect(url_for('panel', negocio_id=negocio_id))
 
 if __name__ == '__main__':
