@@ -1,9 +1,9 @@
 import os
+import io
 import base64
-from io import BytesIO
 import urllib.parse
 from flask import Flask, render_template, request
-import qrcode
+import segno
 
 app = Flask(__name__)
 
@@ -13,30 +13,20 @@ def index():
 
 @app.route('/generar', methods=['POST'])
 def generar():
-    negocio = request.form.get('negocio', 'Mi Negocio')
+    negocio = request.form.get('negocio', 'INGENIO EN MADERA')
     telefono = request.form.get('telefono', '526143665161')
     mensaje = f"Hola, me interesa más información sobre los servicios de {negocio}."
     
-    # Enlace directo de WhatsApp con codificación segura
+    # Enlace directo de WhatsApp
     wa_encoded_msg = urllib.parse.quote(mensaje)
     wa_url = f"https://wa.me/{telefono}?text={wa_encoded_msg}"
     
-    # Generar la imagen del QR de forma local y 100% independiente en memoria
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=2,
-    )
-    qr.add_data(wa_url)
-    qr.make(fit=True)
-    
-    img = qr.make_image(fill_color="black", back_color="white")
-    
-    # Convertir a Base64 para inyectarlo directo en el HTML sin depender de archivos temporales
-    buffered = BytesIO()
-    img.save(buffered, format="PNG")
-    qr_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    # Generar código QR localmente en memoria con Segno (Python puro)
+    qrcode = segno.make(wa_url)
+    buff = io.BytesIO()
+    # Guardar como PNG directamente en memoria
+    qrcode.save(buff, kind='png', scale=5, dark="#000000", light="#ffffff")
+    qr_base64 = base64.b64encode(buff.getvalue()).decode('utf-8')
     qr_url = f"data:image/png;base64,{qr_base64}"
     
     buy_url = "https://www.paypal.com"
