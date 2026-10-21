@@ -1,107 +1,130 @@
 import os
-import qrcode
-from io import BytesIO
-import base64
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
+import mercadopago
 
-app = Flask(__name__, template_folder='plantillas')
-app.secret_key = os.environ.get('SECRET_KEY', 'jenopro_secret_key_2026')
-
-# Configuración de Base de Datos (SQLite local / PostgreSQL en producción)
-db_uri = os.environ.get('DATABASE_URL', 'sqlite:///jenopro.db')
-if db_uri.startswith("postgres://"):
-    db_uri = db_uri.replace("postgres://", "postgresql://", 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret_key_qr_jenopro'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///jenopro.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Modelos de la Base de Datos
+# Credencial de Producción Mercado Pago
+MP_ACCESS_TOKEN = os.environ.get('MP_ACCESS_TOKEN', 'APP_USR-6064762100649336-102105-c9c4e7819f238771f3a72af8897b15c2-2903412042')
+sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
+
+DOMAIN_URL = "https://qr-expres-jenopro.onrender.com"
+
+# --- MODELOS ---
 class Negocio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
+    slug = db.Column(db.String(100), unique=True, nullable=False)
     telefono = db.Column(db.String(20), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200), nullable=False)
-    activo = db.Column(db.Boolean, default=False)
+    estado = db.Column(db.String(20), default='Draft')  # Draft o Active
     productos = db.relationship('Producto', backref='negocio', lazy=True)
 
 class Producto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    precio = db.Column(db.String(20), nullable=False)
-    foto = db.Column(db.String(300), nullable=True)
+    precio = db.Column(db.Float, nullable=False)
+    descripcion = db.Column(db.Text, nullable=True)
     negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
 
-with app.app_context():
-    db.create_all()
-
+# --- RUTAS PRINCIPALES ---
 @app.route('/')
-def inicio():
-    return render_template('index.html')
+def index():
+    return render_template('registro.html')
 
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
-        nombre = request.form.get('nombre_negocio')
-        telefono = request.form.get('telefono_wa')
-        email = request.form.get('email')
-        password = request.form.get('password')
+        nombre = request.form.get('nombre')
+        telefono = request.form.get('telefono')
+        slug = nombre.lower().replace(" ", "-")
         
-        existente = Negocio.query.filter_by(email=email).first()
-        if existente:
-            flash('El correo ya está registrado.', 'error')
-            return redirect(url_for('registro'))
-            
-        nuevo_negocio = Negocio(
-            nombre=nombre,
-            telefono=telefono,
-            email=email,
-            password_hash=generate_password_hash(password)
-        )
+        nuevo_negocio = Negocio(nombre=nombre, telefono=telefono, slug=slug, estado='Draft')
         db.session.add(nuevo_negocio)
         db.session.commit()
         
-        session['negocio_id'] = nuevo_negocio.id
-        return redirect(url_for('panel'))
+        return redirect(url_for('panel', negocio_id=nuevo_negocio.id))
     return render_template('registro.html')
 
-@app.route('/panel')
-def panel():
-    if 'negocio_id' not in session:
-        return redirect(url_for('registro'))
-    negocio = Negocio.query.get(session['negocio_id'])
-    return render_template('panel.html', negocio=negocio, productos=negocio.productos)
+@app.route('/panel/<int:negocio_id>')
+def panel(negocio_id):
+    negocio = Negocio.query.get_or_404(negocio_id)
+    return render_template('panel.html', negocio=negocio)
 
-@app.route('/card/<int:negocio_id>')
-def tarjeta(negocio_id):
+# --- MERCADO PAGO: COBRO DE ACTIVACIÓN DE $50 MXN ---
+@app.route('/pagar/<int:negocio_id>', methods=['POST'])
+def pagar_activacion(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
     
-    # Generar QR dinámico
-    url_menu = request.host_url + f"card/{negocio.id}"
-    qr = qrcode.QRCode(version=1, box_size=8, border=2)
-    qr.add_data(url_menu)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
+    preference_data = {
+        "items": [
+            {
+                "title": f"Activación Licencia QR JeNoPro - {negocio.nombre}",
+                "quantity": 1,
+                "unit_price": 50.00,
+                "currency_id": "MXN"
+            }
+        ],
+        "external_reference": str(negocio.id),
+        "back_urls": {
+            "success": f"{DOMAIN_URL}/pago/exitoso/{negocio.id}",
+            "failure": f"{DOMAIN_URL}/pago/fallido/{negocio.id}",
+            "pending": f"{DOMAIN_URL}/pago/pendiente/{negocio.id}"
+        },
+        "auto_return": "approved",
+    }
     
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    qr_b64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-    qr_url = f"data:image/png;base64,{qr_b64}"
+    preference_response = sdk.preference().create(preference_data)
+    preference = preference_response["response"]
     
-    telefono_clean = ''.join(filter(str.isdigit, negocio.telefono))
-    link_wa_cliente = f"https://wa.me/{telefono_clean}?text=Hola,%20quiero%20hacer%20un%20pedido"
-    link_wa_activacion = f"https://wa.me/526141366516?text=Hola%20Noe,%20quiero%20activar%20mi%20negocio:%20{negocio.nombre}"
+    return redirect(preference["init_point"])
 
-    return render_template('card.html',
-                           nombre_negocio=negocio.nombre,
-                           productos=negocio.productos,
-                           qr_url=qr_url,
-                           telefono_clean=telefono_clean,
-                           link_wa_cliente=link_wa_cliente,
-                           link_wa_activacion=link_wa_activacion)
+# --- NOTIFICACIÓN Y ACTIVACIÓN AUTOMÁTICA (WEBHOOK) ---
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    data = request.get_json(silent=True) or request.args
+    
+    if data.get("type") == "payment" or data.get("topic") == "payment":
+        payment_id = data.get("data", {}).get("id") or data.get("id")
+        if payment_id:
+            payment_info = sdk.payment().get(payment_id)
+            payment = payment_info.get("response", {})
+            
+            if payment.get("status") == "approved":
+                negocio_id = payment.get("external_reference")
+                if negocio_id:
+                    negocio = Negocio.query.get(int(negocio_id))
+                    if negocio:
+                        negocio.estado = 'Active'
+                        db.session.commit()
+    
+    return jsonify({"status": "ok"}), 200
+
+# --- RETORNOS DEL CHECKOUT ---
+@app.route('/pago/exitoso/<int:negocio_id>')
+def pago_exitoso(negocio_id):
+    negocio = Negocio.query.get_or_404(negocio_id)
+    negocio.estado = 'Active'
+    db.session.commit()
+    flash('¡Pago acreditado con éxito! Tu cuenta ya está activa.', 'success')
+    return redirect(url_for('panel', negocio_id=negocio.id))
+
+@app.route('/pago/fallido/<int:negocio_id>')
+def pago_fallido(negocio_id):
+    flash('El pago no pudo completarse. Por favor reintenta.', 'danger')
+    return redirect(url_for('panel', negocio_id=negocio_id))
+
+@app.route('/pago/pendiente/<int:negocio_id>')
+def pago_pendiente(negocio_id):
+    flash('Tu pago está en proceso (ej. OXXO/SPEI). Se activará al confirmarse.', 'info')
+    return redirect(url_for('panel', negocio_id=negocio_id))
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(host='0.0.0.0', port=5000, debug=True)
