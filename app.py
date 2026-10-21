@@ -22,7 +22,7 @@ class Negocio(db.Model):
     productos = db.relationship('Producto', backref='negocio', lazy=True)
 
 class Producto(db.Model):
-    id = db.Column(db.Integer, primary_primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.Text, nullable=True)
@@ -131,10 +131,10 @@ def ver_menu(slug):
     negocio = Negocio.query.filter_by(slug=slug).first_or_404()
     return render_template('menu.html', negocio=negocio)
 
-# --- PROCESAMIENTO DE PAGO Y ACTIVACIÓN DE PRUEBA ---
+# --- ACTIVACIÓN DE PRUEBA Y PAGO ---
 @app.route('/activar_directo/<int:negocio_id>')
 def activar_directo(negocio_id):
-    """Ruta de prueba rápida para omitir la pasarela y activar la cuenta inmediatamente."""
+    """Ruta de prueba rápida para activar la cuenta inmediatamente."""
     negocio = Negocio.query.get_or_404(negocio_id)
     negocio.estado = 'Active'
     db.session.commit()
