@@ -39,7 +39,7 @@ with app.app_context():
 def index():
     return redirect(url_for('login'))
 
-# RUTA PARA CREAR/ASEGURAR EL USUARIO FIJO DE PRUEBAS
+# RUTA ESPECIAL PARA CREAR/ASEGURAR EL USUARIO FIJO
 @app.route('/crear_usuario_fijo')
 def crear_usuario_fijo():
     user = Usuario.query.filter_by(correo='contacto@ingenio.com').first()
@@ -56,7 +56,7 @@ def crear_usuario_fijo():
         user.password = '123456'
         user.estado = 'Pendiente'
     db.session.commit()
-    return "Usuario fijo creado/actualizado con éxito: contacto@ingenio.com / 123456. Ya puedes iniciar sesión."
+    return "Usuario fijo creado/actualizado con exito: contacto@ingenio.com / 123456. Ya puedes iniciar sesion."
 
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -68,7 +68,6 @@ def registro():
 
         user = Usuario.query.filter_by(correo=correo).first()
         if user:
-            # Si ya existe, actualiza contraseña y estado a pendiente
             user.password = password
             user.estado = 'Pendiente'
             db.session.commit()
