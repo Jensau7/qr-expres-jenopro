@@ -83,14 +83,14 @@
 
     <div class="container" style="max-width: 900px;">
 
-        <!-- HEADER PRINCIPAL DE ESTADO -->
+        <!-- TARJETA SUPERIOR DE ESTADO -->
         <div class="header-card mb-3">
             <h3 class="fw-bold mb-1">{{ usuario.nombre }}</h3>
-            <p class="text-muted small mb-1">Teléfono: {{ usuario.telefono or '6141234567' }}</p>
+            <p class="text-muted small mb-1">Teléfono: {{ usuario.telefono or 'S/N' }}</p>
             <div class="mb-3">
                 <span class="small text-muted me-1">Estado de la cuenta:</span>
                 {% if usuario.estado == 'Activo' %}
-                    <span class="badge-activa">Activa</span>
+                    <span class="badge-activa">Edición Habilitada</span>
                 {% else %}
                     <span class="badge-pendiente">Pendiente de Pago ($50 MXN)</span>
                 {% endif %}
@@ -98,13 +98,13 @@
             
             {% if usuario.estado == 'Activo' %}
                 <div class="alert alert-success py-2 mb-0 border-0 small">
-                    <i class="fa-solid fa-circle-check me-1"></i> Sesión activa: Puedes agregar o eliminar productos.
+                    <i class="fa-solid fa-circle-check me-1"></i> Sesión autorizada: Puedes agregar o eliminar productos en esta sesión.
                 </div>
             {% else %}
                 <div class="alert alert-danger py-2 mb-0 border-0 small">
-                    <i class="fa-solid fa-lock me-1"></i> Para realizar cambios, modificaciones o eliminar productos de tu menú, se requiere realizar el pago de renovación de <strong>$50 MXN</strong>.
+                    <i class="fa-solid fa-lock me-1"></i> Para habilitar la carga de productos o realizar futuras actualizaciones, realiza tu pago de <strong>$50 MXN</strong>.
                     <div class="mt-2">
-                        <a href="https://wa.me/526141234567?text=Hola,%20quiero%20pagar%20mi%20renovaci%C3%B3n%20de%20$50%20para%20modificar%20el%20men%C3%BA%20de%20{{ usuario.nombre }}" target="_blank" class="btn btn-sm btn-success fw-bold">
+                        <a href="https://wa.me/526141234567?text=Hola,%20quiero%20pagar%20mi%20sesi%C3%B3n%20de%20$50%20para%20modificar%20el%20men%C3%BA%20de%20{{ usuario.nombre }}" target="_blank" class="btn btn-sm btn-success fw-bold">
                             <i class="fa-brands fa-whatsapp me-1"></i> Pagar $50 MXN por WhatsApp para Desbloquear
                         </a>
                     </div>
@@ -112,10 +112,9 @@
             {% endif %}
         </div>
 
-        <!-- CONTENIDO PRINCIPAL -->
+        <!-- FORMULARIO DE PRODUCTOS -->
         <div class="row g-4">
             
-            <!-- FORMULARIO DE AGREGAR PRODUCTO -->
             <div class="col-12 col-md-5">
                 <div class="card-box">
                     <div class="card-header-dark">
@@ -158,7 +157,7 @@
                 </div>
             </div>
 
-            <!-- LISTA DE PRODUCTOS -->
+            <!-- GALERÍA / LISTA -->
             <div class="col-12 col-md-7">
                 <div class="card-box">
                     <div class="card-header-dark">
@@ -200,7 +199,7 @@
 
         </div>
 
-        <!-- ACCESOS AL MENÚ PÚBLICO Y BOTÓN DE CERRAR SESIÓN -->
+        <!-- ACCESOS AL MENÚ PÚBLICO -->
         <div class="text-center mt-4 p-4 bg-white border rounded shadow-sm">
             <h5 class="fw-bold mb-2 text-dark">Tu Menú Público Sigue Activo</h5>
             <div class="d-flex flex-wrap justify-content-center gap-3 mt-3">
