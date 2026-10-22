@@ -136,7 +136,13 @@
 
             mensaje += `\n*Total a pagar: $${total.toFixed(2)} MXN*`;
 
-            const url = `https://wa.me/${telefonoNegocio}?text=${encodeURIComponent(mensaje)}`;
+            // Formateo automático de lada internacional (+52 México)
+            let numLimpio = telefonoNegocio.replace(/\D/g, '');
+            if (numLimpio.length === 10) {
+                numLimpio = '52' + numLimpio;
+            }
+
+            const url = `https://wa.me/${numLimpio}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
         }
     </script>
