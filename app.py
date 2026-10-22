@@ -17,7 +17,6 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 
-# MODELOS DE BASE DE DATOS
 class Negocio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
@@ -40,24 +39,18 @@ class Producto(db.Model):
     imagen = db.Column(db.String(255))
     negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
 
-# INSPECTOR Y REINICIO SEGURO DE TABLAS
 with app.app_context():
     inspector = inspect(db.engine)
-    tablas_existentes = inspector.get_table_names()
-    
-    if 'negocio' in tablas_existentes:
+    if 'negocio' in inspector.get_table_names():
         columnas = [col['name'] for col in inspector.get_columns('negocio')]
         if 'tema' not in columnas:
             db.drop_all()
-            
     db.create_all()
 
 def generar_slug(texto):
     texto = texto.lower().strip()
     texto = re.sub(r'[^\w\s-]', '', texto)
     return re.sub(r'[\s_-]+', '-', texto)
-
-# RUTAS DE LA APLICACIÓN
 
 @app.route('/')
 def home():
@@ -175,7 +168,6 @@ def agregar_producto(negocio_id):
 @app.route('/menu/<slug>')
 def menu_publico(slug):
     negocio = Negocio.query.filter_by(slug=slug).first_or_404()
-    
     categorias_dict = {}
     for prod in negocio.productos:
         cat = prod.categoria if prod.categoria else 'General'
