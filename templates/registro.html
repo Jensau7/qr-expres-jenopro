@@ -3,33 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - QR JeNoPro</title>
+    <title>Registro - JeNoPro QR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(2, 132, 199, 0.1) 0%, transparent 40%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 20px 12px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Marca de agua QR de fondo */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23ffffff' opacity='0.02'%3E%3Cpath d='M0 0h30v30H0zM10 10h10v10H10zM70 0h30v30H70zM80 10h10v10H80zM0 70h30v30H0zM10 80h10v10H10zM40 0h20v10H40zM40 20h10v20H40zM0 40h10v20H0zM20 50h20v10H20zM50 50h10v10H50zM70 40h30v10H70zM60 60h20v10H60zM50 80h20v20H50zM80 70h20v10H80zM90 90h10v10H90z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card-registro {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.1);
+            width: 100%;
+            max-width: 520px;
+            padding: 35px 30px;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-container {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 15px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle, #2d3748 0%, #1a202c 100%);
+            border: 2px solid #f59e0b;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .logo-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .badge-oficial {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            border-radius: 30px;
+            padding: 5px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .title-brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle-brand {
+            color: #f59e0b;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-group-custom {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            z-index: 10;
+        }
+
+        .form-control {
+            background-color: #0b0f19 !important;
+            border: 1px solid #334155 !important;
+            color: #f8fafc !important;
+            padding: 12px 14px 12px 42px;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+        }
+
+        .form-control::placeholder {
+            color: #475569;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: none;
+            color: #0f172a;
+            font-weight: 800;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+            color: #000000;
+        }
+    </style>
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-    <div class="card shadow p-4" style="width: 100%; max-width: 450px; border-radius: 12px;">
-        <h2 class="text-center fw-bold mb-3">🚀 QR JeNoPro</h2>
-        <p class="text-center text-muted mb-4">Crea tu menú o catálogo digital con QR</p>
-        
-        <form action="/registro" method="POST">
+<body>
+
+    <div class="card-registro text-center">
+        <!-- Badge Oficial -->
+        <div class="badge-oficial">
+            <i class="fa-solid fa-circle-check"></i> Plataforma Oficial JeNoPro
+        </div>
+
+        <!-- Emblemático Logotipo Dorado Vectorial -->
+        <div class="logo-container">
+            <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fbbf24" />
+                        <stop offset="50%" stop-color="#f59e0b" />
+                        <stop offset="100%" stop-color="#b45309" />
+                    </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="45" stroke="url(#goldGrad)" stroke-width="3" fill="none" />
+                <path d="M 15 50 A 35 35 0 1 1 85 50" stroke="url(#goldGrad)" stroke-width="3" stroke-dasharray="6 4" fill="none" />
+                <!-- Flecha de ciclo -->
+                <polygon points="85,42 92,52 80,52" fill="url(#goldGrad)" />
+                <!-- Iniciales JN Stylized -->
+                <text x="50%" y="42%" dominant-baseline="middle" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="28" fill="url(#goldGrad)">JN</text>
+                <!-- Mini QR icon abajo -->
+                <g transform="translate(38, 55) scale(0.24)" fill="url(#goldGrad)">
+                    <rect x="0" y="0" width="30" height="30" />
+                    <rect x="5" y="5" width="20" height="20" fill="#1a202c" />
+                    <rect x="10" y="10" width="10" height="10" />
+                    <rect x="70" y="0" width="30" height="30" />
+                    <rect x="75" y="5" width="20" height="20" fill="#1a202c" />
+                    <rect x="80" y="10" width="10" height="10" />
+                    <rect x="0" y="70" width="30" height="30" />
+                    <rect x="5" y="75" width="20" height="20" fill="#1a202c" />
+                    <rect x="10" y="80" width="10" height="10" />
+                </g>
+            </svg>
+        </div>
+
+        <!-- Encabezado de Marca -->
+        <h2 class="title-brand mb-0">JeNoPro QR</h2>
+        <div class="subtitle-brand mb-4">REGISTRO DE NEGOCIO</div>
+
+        <!-- Formulario de Registro -->
+        <form action="/registro" method="POST" class="text-start">
             <div class="mb-3">
-                <label class="form-label fw-bold">Nombre del Negocio</label>
-                <input type="text" name="nombre" class="form-control" placeholder="Ej. Ingenio en Madera" required>
+                <label class="form-label"><i class="fa-solid fa-store text-warning"></i> NOMBRE DEL NEGOCIO</label>
+                <div class="input-group-custom">
+                    <i class="fa-solid fa-building input-icon"></i>
+                    <input type="text" name="nombre" class="form-control" placeholder="Ej. Carpintería / Tacos El Paisa" required>
+                </div>
             </div>
+
             <div class="mb-3">
-                <label class="form-label fw-bold">WhatsApp del Negocio</label>
-                <input type="text" name="telefono" class="form-control" placeholder="6141234567" required>
+                <label class="form-label"><i class="fa-brands fa-whatsapp text-warning"></i> WHATSAPP DEL NEGOCIO (CON LADA)</label>
+                <div class="input-group-custom">
+                    <i class="fa-solid fa-phone input-icon"></i>
+                    <input type="text" name="telefono" class="form-control" placeholder="Ej. 526141234567" required>
+                </div>
             </div>
+
             <div class="mb-3">
-                <label class="form-label fw-bold">Correo Electrónico</label>
-                <input type="email" name="correo" class="form-control" placeholder="correo@gmail.com" required>
+                <label class="form-label"><i class="fa-solid fa-envelope text-warning"></i> CORREO ELECTRÓNICO</label>
+                <div class="input-group-custom">
+                    <i class="fa-solid fa-at input-icon"></i>
+                    <input type="email" name="correo" class="form-control" placeholder="tucorreo@gmail.com" required>
+                </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">Contraseña</label>
-                <input type="password" name="password" class="form-control" placeholder="******" required>
+
+            <div class="mb-4">
+                <label class="form-label"><i class="fa-solid fa-lock text-warning"></i> CONTRASEÑA</label>
+                <div class="input-group-custom">
+                    <i class="fa-solid fa-key input-icon"></i>
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
             </div>
-            <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Registrar y Crear mi Panel</button>
+
+            <button type="submit" class="btn btn-submit w-100 mb-3">
+                REGISTRAR Y CREAR MI PANEL <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
         </form>
+
+        <div class="border-top border-secondary pt-3 mt-2">
+            <small class="text-muted">¿Ya tienes una cuenta activada? <a href="#" class="text-warning text-decoration-none fw-bold">Inicia sesión aquí</a></small>
+        </div>
     </div>
+
 </body>
 </html>
