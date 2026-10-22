@@ -3,99 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro | QR JeNoPro</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #0b0f19;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background: #161b22;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 400px;
-        }
-        h2 { text-align: center; color: #f39c12; margin-bottom: 20px; }
-        .alert {
-            background: #721c24;
-            color: #f8d7da;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-        label { font-size: 14px; color: #aaa; display: block; margin-top: 10px; }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            background: #21262d;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            color: #fff;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            background: #f39c12;
-            color: #000;
-            border: none;
-            padding: 12px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s;
-        }
-        button:hover { background: #d68910; }
-        .link {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        .link a { color: #f39c12; text-decoration: none; }
-    </style>
+    <title>Registro - QR JeNoPro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="card">
-        <h2>⚡ QR JENOPRO</h2>
+<body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="card shadow p-4" style="width: 100%; max-width: 450px; border-radius: 12px;">
+        <h2 class="text-center fw-bold mb-3">🚀 QR JeNoPro</h2>
+        <p class="text-center text-muted mb-4">Crea tu menú o catálogo digital con QR</p>
         
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
         <form action="/registro" method="POST">
-            <label>NOMBRE DEL NEGOCIO</label>
-            <input type="text" name="nombre" placeholder="Ej. Tacos El Paisa" required>
-
-            <label>WHATSAPP DEL NEGOCIO (CON LADA)</label>
-            <input type="text" name="telefono" placeholder="Ej. 520000000000" required>
-
-            <label>CORREO ELECTRÓNICO</label>
-            <input type="email" name="email" placeholder="tucorreo@gmail.com" required>
-
-            <label>CONTRASEÑA</label>
-            <input type="password" name="password" placeholder="********" required>
-
-            <button type="submit">REGISTRAR Y CREAR MI PANEL →</button>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Nombre del Negocio</label>
+                <input type="text" name="nombre" class="form-control" placeholder="Ej. Ingenio en Madera" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">WhatsApp del Negocio</label>
+                <input type="text" name="telefono" class="form-control" placeholder="6141234567" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Correo Electrónico</label>
+                <input type="email" name="correo" class="form-control" placeholder="correo@gmail.com" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Contraseña</label>
+                <input type="password" name="password" class="form-control" placeholder="******" required>
+            </div>
+            <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Registrar y Crear mi Panel</button>
         </form>
-
-        <div class="link">
-            ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
-        </div>
     </div>
 </body>
 </html>
