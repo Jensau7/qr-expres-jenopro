@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 import mercadopago
 
 app = Flask(__name__)
@@ -8,7 +9,18 @@ app.config['SECRET_KEY'] = 'secret_key_qr_jenopro'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///jenopro_v2.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Configuración de carpeta para subir imágenes
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Crear la carpeta de imágenes si no existe
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 db = SQLAlchemy(app)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --- MODELOS DE LA BASE DE DATOS ---
 class Negocio(db.Model):
@@ -18,7 +30,7 @@ class Negocio(db.Model):
     telefono = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(100), nullable=True)
     password = db.Column(db.String(100), nullable=True)
-    estado = db.Column(db.String(20), default='Draft') # Draft o Active
+    estado = db.Column(db.String(20), default='Draft')
     productos = db.relationship('Producto', backref='negocio', lazy=True)
 
 class Producto(db.Model):
@@ -26,7 +38,7 @@ class Producto(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.Text, nullable=True)
-    imagen_url = db.Column(db.String(500), nullable=True) # <-- Nuevo campo para foto
+    imagen = db.Column(db.String(300), nullable=True) # Nombre del archivo guardado
     negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
 
 with app.app_context():
@@ -112,14 +124,23 @@ def agregar_producto(negocio_id):
     nombre = request.form.get('nombre')
     precio = request.form.get('precio')
     descripcion = request.form.get('descripcion')
-    imagen_url = request.form.get('imagen_url') # Capturar URL de imagen
+    
+    filename = None
+    if 'imagen' in request.files:
+        file = request.files['imagen']
+        if file and file.filename != '' and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            # Evitar duplicados concatenando el ID del negocio
+            filename = f"negocio_{negocio.id}_{filename}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
 
     if nombre and precio:
         nuevo_prod = Producto(
             nombre=nombre,
             precio=float(precio),
             descripcion=descripcion,
-            imagen_url=imagen_url,
+            imagen=filename,
             negocio_id=negocio.id
         )
         db.session.add(nuevo_prod)
