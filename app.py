@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Configuración de base de datos SQLite y carpeta de imágenes
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -15,7 +14,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 
-# MODELOS DE LA BASE DE DATOS
+# MODELOS ACTUALIZADOS
 class Negocio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
@@ -24,7 +23,9 @@ class Negocio(db.Model):
     password = db.Column(db.String(100), nullable=False)
     slug = db.Column(db.String(100), unique=True, nullable=False)
     estado = db.Column(db.String(20), default='Draft')
-    tema = db.Column(db.String(30), default='carpinteria')  # Campo para el tema visual
+    tema = db.Column(db.String(30), default='carpinteria')
+    logo = db.Column(db.String(255))
+    banner = db.Column(db.String(255))
     productos = db.relationship('Producto', backref='negocio', lazy=True)
 
 class Producto(db.Model):
@@ -32,19 +33,19 @@ class Producto(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(255))
+    categoria = db.Column(db.String(50), default='General')
     imagen = db.Column(db.String(255))
     negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
 
 with app.app_context():
     db.create_all()
 
-# Función auxiliar para generar Slugs limpios
 def generar_slug(texto):
     texto = texto.lower().strip()
     texto = re.sub(r'[^\w\s-]', '', texto)
     return re.sub(r'[\s_-]+', '-', texto)
 
-# RUTAS PRINCIPALES
+# RUTAS
 
 @app.route('/')
 def home():
@@ -95,6 +96,27 @@ def cambiar_tema(negocio_id):
         db.session.commit()
     return redirect(url_for('panel', negocio_id=negocio.id))
 
+@app.route('/actualizar_branding/<int:negocio_id>', methods=['POST'])
+def actualizar_branding(negocio_id):
+    negocio = Negocio.query.get_or_404(negocio_id)
+    
+    logo_file = request.files.get('logo')
+    if logo_file and logo_file.filename != '':
+        filename = f"logo_{negocio_id}.jpg"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        logo_file.save(filepath)
+        negocio.logo = filename
+
+    banner_file = request.files.get('banner')
+    if banner_file and banner_file.filename != '':
+        filename = f"banner_{negocio_id}.jpg"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        banner_file.save(filepath)
+        negocio.banner = filename
+
+    db.session.commit()
+    return redirect(url_for('panel', negocio_id=negocio.id))
+
 @app.route('/pagar/<int:negocio_id>', methods=['POST'])
 def pagar(negocio_id):
     negocio = Negocio.query.get_or_404(negocio_id)
@@ -115,6 +137,7 @@ def agregar_producto(negocio_id):
     nombre = request.form.get('nombre')
     precio = float(request.form.get('precio'))
     descripcion = request.form.get('descripcion')
+    categoria = request.form.get('categoria') or 'General'
     
     imagen_file = request.files.get('imagen')
     filename = None
@@ -128,6 +151,7 @@ def agregar_producto(negocio_id):
         nombre=nombre,
         precio=precio,
         descripcion=descripcion,
+        categoria=categoria,
         imagen=filename,
         negocio_id=negocio.id
     )
@@ -139,7 +163,16 @@ def agregar_producto(negocio_id):
 @app.route('/menu/<slug>')
 def menu_publico(slug):
     negocio = Negocio.query.filter_by(slug=slug).first_or_404()
-    return render_template('menu.html', negocio=negocio)
+    
+    # Agrupar productos por categoría
+    categorias_dict = {}
+    for prod in negocio.productos:
+        cat = prod.categoria if prod.categoria else 'General'
+        if cat not in categorias_dict:
+            categorias_dict[cat] = []
+        categorias_dict[cat].append(prod)
+
+    return render_template('menu.html', negocio=negocio, categorias=categorias_dict)
 
 if __name__ == '__main__':
     app.run(debug=True)
