@@ -39,39 +39,15 @@ with app.app_context():
 def index():
     return redirect(url_for('login'))
 
-@app.route('/registro', methods=['GET', 'POST'])
-def registro():
-    if request.method == 'POST':
-        nombre = request.form.get('nombre')
-        telefono = request.form.get('telefono')
-        correo = request.form.get('correo')
-        password = request.form.get('password')
-
-        user = Usuario.query.filter_by(correo=correo).first()
-        if user:
-            user.password = password
-            user.estado = 'Pendiente'
-        else:
-            user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
-            db.session.add(user)
-        
-        db.session.commit()
-        session['user_id'] = user.id
-        session['nombre_negocio'] = user.nombre
-        return redirect(url_for('panel'))
-
-    return render_template('registro.html')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error = None
     if request.method == 'POST':
         correo = request.form.get('correo')
         password = request.form.get('password')
         
         user = Usuario.query.filter_by(correo=correo).first()
         
-        # SI EL USUARIO NO EXISTE, LO CREA AUTOMÁTICAMENTE CON LA CONTRASEÑA QUE INGRESES
+        # Si no existe, lo creamos automáticamente para evitar bloqueos
         if not user:
             user = Usuario(
                 nombre='INGENIO EN MADERA',
@@ -82,15 +58,33 @@ def login():
             )
             db.session.add(user)
             db.session.commit()
-
+        
         if user.password == password:
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
             return redirect(url_for('panel'))
-        else:
-            error = "Contraseña incorrecta."
             
-    return render_template('login.html', error=error)
+    return render_template('login.html')
+
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        telefono = request.form.get('telefono')
+        correo = request.form.get('correo')
+        password = request.form.get('password')
+
+        user = Usuario.query.filter_by(correo=correo).first()
+        if not user:
+            user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
+            db.session.add(user)
+            db.session.commit()
+
+        session['user_id'] = user.id
+        session['nombre_negocio'] = user.nombre
+        return redirect(url_for('panel'))
+
+    return render_template('registro.html')
 
 @app.route('/panel')
 def panel():
@@ -108,7 +102,7 @@ def agregar_producto():
     
     usuario = Usuario.query.get(session['user_id'])
     if usuario.estado != 'Activo':
-        return "Se requiere pago de $50 MXN para agregar productos y fotos.", 403
+        return "Se requiere pago de $50 MXN para agregar productos.", 403
 
     nombre_prod = request.form.get('nombre_prod')
     precio = request.form.get('precio')
@@ -147,13 +141,6 @@ def eliminar_producto(id):
         db.session.delete(producto)
         db.session.commit()
     return redirect(url_for('panel'))
-
-@app.route('/admin/cambiar_estado/<int:user_id>/<string:nuevo_estado>')
-def cambiar_estado(user_id, nuevo_estado):
-    usuario = Usuario.query.get_or_404(user_id)
-    usuario.estado = nuevo_estado
-    db.session.commit()
-    return f"Estado de {usuario.nombre} actualizado a: {nuevo_estado}"
 
 @app.route('/menu/<int:user_id>')
 def menu_publico(user_id):
