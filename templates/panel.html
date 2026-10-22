@@ -29,6 +29,13 @@
             padding: 3px 8px;
             border-radius: 4px;
         }
+        .badge-pendiente {
+            background-color: #dc3545;
+            color: #ffffff;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
         .card-header-dark {
             background-color: #1e252b;
             color: #ffffff;
@@ -76,38 +83,52 @@
 
     <div class="container" style="max-width: 900px;">
 
-        <!-- TARJETA SUPERIOR CON NOMBRE Y ESTADO -->
+        <!-- HEADER Y ESTADO -->
         <div class="header-card mb-3">
             <h3 class="fw-bold mb-1">{{ usuario.nombre }}</h3>
             <p class="text-muted small mb-1">Teléfono: {{ usuario.telefono or '6141234567' }}</p>
             <div class="mb-3">
                 <span class="small text-muted me-1">Estado de la cuenta:</span>
-                <span class="badge-activa">Activa</span>
+                {% if usuario.estado == 'Activo' %}
+                    <span class="badge-activa">Activa - Edición Habilitada</span>
+                {% else %}
+                    <span class="badge-pendiente">Pendiente de Pago ($50 MXN)</span>
+                {% endif %}
             </div>
             
-            <div class="alert alert-success py-2 mb-0 border-0" style="background-color: #d1e7dd; color: #0f5132; font-size: 0.9rem;">
-                ¡Felicidades! Tu negocio se encuentra totalmente activo en QR JeNoPro.
-            </div>
+            {% if usuario.estado == 'Activo' %}
+                <div class="alert alert-success py-2 mb-0 border-0 small">
+                    <i class="fa-solid fa-circle-check me-1"></i> Puedes agregar o eliminar productos libremente en esta sesión.
+                </div>
+            {% else %}
+                <div class="alert alert-danger py-2 mb-0 border-0 small">
+                    <i class="fa-solid fa-lock me-1"></i> Para realizar cambios o actualizaciones en tu menú se te cobrará una cuota de <strong>$50 MXN</strong>.
+                    <div class="mt-2">
+                        <a href="https://wa.me/526141234567?text=Hola,%20quiero%20pagar%20mi%20renovaci%C3%B3n%20de%20$50%20para%20modificar%20el%20men%C3%BA%20de%20{{ usuario.nombre }}" target="_blank" class="btn btn-sm btn-success fw-bold">
+                            <i class="fa-brands fa-whatsapp me-1"></i> Pagar $50 MXN por WhatsApp para Desbloquear
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
         </div>
 
-        <!-- ALERTA DE POLÍTICA DE ACTUALIZACIÓN DE $50 PESOS -->
+        <!-- ALERTA PERSISTENTE -->
         {% if session.get('mostrar_aviso') %}
         <div class="alert alert-warning alert-dismissible fade show border-warning mb-4 shadow-sm" role="alert">
             <div class="d-flex align-items-center">
                 <i class="fa-solid fa-triangle-exclamation fs-4 me-3 text-warning"></i>
                 <div>
                     <h6 class="alert-heading fw-bold mb-1">Aviso Importante de Mantenimiento</h6>
-                    <p class="mb-0 small text-dark">Te recordamos que cada vez que desees realizar cambios o modificaciones en tu menú, se te estará cobrando una cuota de <strong>$50 pesos</strong> por la renovación.</p>
+                    <p class="mb-0 small text-dark">Te recordamos que cada vez que ingreses nuevamente para realizar cambios o modificaciones en tu menú, se te cobrará una cuota de <strong>$50 pesos</strong> por la renovación.</p>
                 </div>
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="fetch('/quitar_aviso')"></button>
         </div>
         {% endif %}
 
-        <!-- SECCIÓN PRINCIPAL: FORMULARIO Y LISTA EN DOS COLUMNAS -->
+        <!-- FORMULARIO Y LISTA -->
         <div class="row g-4">
             
-            <!-- FORMULARIO PARA AGREGAR PRODUCTO CON FOTO -->
             <div class="col-12 col-md-5">
                 <div class="card-box">
                     <div class="card-header-dark">
@@ -118,33 +139,38 @@
                             
                             <div class="mb-3">
                                 <label class="form-label small fw-bold text-secondary mb-1">Nombre del producto</label>
-                                <input type="text" name="nombre_prod" class="form-control form-control-sm" placeholder="Ej. Mesa de Centro / Tacos" required>
+                                <input type="text" name="nombre_prod" class="form-control form-control-sm" placeholder="Ej. Tacos / Mesa" {% if usuario.estado != 'Activo' %}disabled{% endif %} required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label small fw-bold text-secondary mb-1">Precio ($ MXN)</label>
-                                <input type="number" step="any" name="precio" class="form-control form-control-sm" placeholder="65.00" required>
+                                <input type="number" step="any" name="precio" class="form-control form-control-sm" placeholder="65.00" {% if usuario.estado != 'Activo' %}disabled{% endif %} required>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label small fw-bold text-secondary mb-1">Descripción</label>
-                                <textarea name="descripcion" class="form-control form-control-sm" rows="2" placeholder="Descripción breve..."></textarea>
+                                <textarea name="descripcion" class="form-control form-control-sm" rows="2" placeholder="Descripción..." {% if usuario.estado != 'Activo' %}disabled{% endif %}></textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label small fw-bold text-secondary mb-1">Foto del producto (Galería / Cámara)</label>
-                                <input type="file" name="imagen" class="form-control form-control-sm" accept="image/*">
+                                <label class="form-label small fw-bold text-secondary mb-1">Foto (Galería / Cámara)</label>
+                                <input type="file" name="imagen" class="form-control form-control-sm" accept="image/*" {% if usuario.estado != 'Activo' %}disabled{% endif %}>
                             </div>
 
-                            <button type="submit" class="btn btn-green w-100 btn-sm mt-2">
-                                Guardar Producto
-                            </button>
+                            {% if usuario.estado == 'Activo' %}
+                                <button type="submit" class="btn btn-green w-100 btn-sm mt-2">
+                                    Guardar Producto
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-secondary w-100 btn-sm mt-2" disabled>
+                                    <i class="fa-solid fa-lock me-1"></i> Bloqueado - Requiere Pago de $50
+                                </button>
+                            {% endif %}
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- GALERÍA / LISTA DE PRODUCTOS CON OPCIÓN DE ELIMINAR -->
             <div class="col-12 col-md-7">
                 <div class="card-box">
                     <div class="card-header-dark">
@@ -168,9 +194,11 @@
                                     </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="price-tag">${{ "%.2f"|format(p.precio) }}</span>
-                                        <a href="/eliminar_producto/{{ p.id }}" class="btn btn-sm text-danger p-0 ms-1" title="Eliminar producto" onclick="return confirm('¿Eliminar producto de la galería?');">
-                                            <i class="fa-solid fa-trash-can fs-5"></i>
-                                        </a>
+                                        {% if usuario.estado == 'Activo' %}
+                                            <a href="/eliminar_producto/{{ p.id }}" class="btn btn-sm text-danger p-0 ms-1" onclick="return confirm('¿Eliminar producto?');">
+                                                <i class="fa-solid fa-trash-can fs-5"></i>
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -184,11 +212,10 @@
 
         </div>
 
-        <!-- ACCESOS AL MENÚ PÚBLICO HASTA ABAJO -->
+        <!-- ACCESOS AL MENÚ Y SALIR -->
         <div class="text-center mt-4 p-4 bg-white border rounded shadow-sm">
-            <h5 class="fw-bold mb-2 text-dark">¿Terminaste de cargar tus productos?</h5>
-            <p class="text-muted small mb-3">Abre tu menú público o descarga el código QR listo para imprimir:</p>
-            <div class="d-flex flex-wrap justify-content-center gap-3">
+            <h5 class="fw-bold mb-2 text-dark">Tu Menú Público Sigue Activo</h5>
+            <div class="d-flex flex-wrap justify-content-center gap-3 mt-3">
                 <a href="/menu/{{ usuario.id }}" target="_blank" class="btn btn-outline-primary fw-bold px-4">
                     <i class="fa-solid fa-eye me-1"></i> Ver mi Menú Público (QR)
                 </a>
@@ -196,8 +223,10 @@
                     <i class="fa-solid fa-qrcode me-1"></i> Descargar QR para Mesas
                 </a>
             </div>
-            <div class="mt-3">
-                <a href="/logout" class="text-secondary small text-decoration-none">Cerrar Sesión</a>
+            <div class="mt-4">
+                <a href="/logout" class="btn btn-outline-danger btn-sm px-3">
+                    <i class="fa-solid fa-right-from-bracket me-1"></i> Cerrar Sesión
+                </a>
             </div>
         </div>
 
