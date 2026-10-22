@@ -13,6 +13,7 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
             padding-bottom: 50px;
+            overflow-x: hidden;
         }
         .navbar-custom {
             background: #1e293b;
@@ -21,15 +22,46 @@
         .card-custom {
             background-color: #1e293b;
             border: 1px solid #334155;
-            border-radius: 16px;
+            border-radius: 20px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-label-custom {
+            color: #f1f5f9 !important;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .text-muted-custom {
+            color: #cbd5e1 !important;
+            font-size: 0.95rem;
+        }
+        .form-control-custom {
+            background-color: #0f172a !important;
+            border: 1px solid #334155 !important;
+            color: #ffffff !important;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+        .form-control-custom::placeholder {
+            color: #64748b !important;
+        }
+        .form-control-custom:focus {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25) !important;
         }
     </style>
 </head>
 <body>
 
     <!-- Barra de Navegación Superior -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom px-4 mb-4">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom px-3 px-md-4 mb-4">
+        <div class="container-fluid px-0">
             <a class="navbar-brand fw-bold text-warning" href="#">
                 <i class="fa-solid fa-bolt me-2"></i> JeNoPro QR | {{ usuario.nombre }}
             </a>
@@ -39,7 +71,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container px-3 px-md-4">
 
         <!-- ALERTA DE POLÍTICA DE ACTUALIZACIÓN AL INICIAR SESIÓN -->
         {% if session.get('mostrar_aviso') %}
@@ -47,7 +79,7 @@
             <div class="d-flex align-items-center">
                 <i class="fa-solid fa-triangle-exclamation fs-3 me-3 text-warning"></i>
                 <div>
-                    <h5 class="alert-heading fw-bold mb-1">Aviso Importante de Mantenimiento</h5>
+                    <h5 class="alert-heading fw-bold mb-1 text-dark">Aviso Importante de Mantenimiento</h5>
                     <p class="mb-0 text-dark">Te recordamos que cada vez que desees realizar cambios o modificaciones en tu menú, se te estará cobrando una cuota de <strong>$50 pesos</strong> por la renovación.</p>
                 </div>
             </div>
@@ -59,23 +91,22 @@
         <div class="row g-4">
             <div class="col-12">
                 <div class="card card-custom p-4 shadow-lg">
-                    <h3 class="text-white fw-bold mb-3"><i class="fa-solid fa-boxes-stacked text-warning me-2"></i> Gestión de Productos y Menú</h3>
-                    <p class="text-muted">Carga aquí los platillos, servicios o artículos de tu catálogo antes de generar tus códigos QR y enlaces públicos.</p>
+                    <h3 class="text-white fw-bold mb-2"><i class="fa-solid fa-boxes-stacked text-warning me-2"></i> Gestión de Productos y Menú</h3>
+                    <p class="text-muted-custom mb-3">Carga aquí los platillos, servicios o artículos de tu catálogo antes de generar tus códigos QR y enlaces públicos.</p>
                     
-                    <!-- Formulario o tabla de productos de tu panel actual -->
-                    <hr class="border-secondary my-4">
+                    <hr class="border-secondary my-3">
                     
                     <form action="/agregar_producto" method="POST" class="row g-3">
-                        <div class="col-md-5">
-                            <label class="form-label small fw-bold text-uppercase">Nombre del Producto / Platillo</label>
-                            <input type="text" name="nombre_prod" class="form-control bg-dark text-white border-secondary" placeholder="Ej. Tacos de Bistec / Mesa de Centro" required>
+                        <div class="col-12 col-md-5">
+                            <label class="form-label-custom"><i class="fa-solid fa-utensils text-warning me-1"></i> NOMBRE DEL PRODUCTO O PLATILLO</label>
+                            <input type="text" name="nombre_prod" class="form-control form-control-custom" placeholder="Ej. Tacos de Bistec / Mesa de Centro" required>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label small fw-bold text-uppercase">Precio ($ MXN)</label>
-                            <input type="number" name="precio" class="form-control bg-dark text-white border-secondary" placeholder="Ej. 120" required>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label-custom"><i class="fa-solid fa-tag text-warning me-1"></i> PRECIO ($ MXN)</label>
+                            <input type="number" name="precio" class="form-control form-control-custom" placeholder="Ej. 120" required>
                         </div>
-                        <div class="col-md-4 d-flex align-items-end">
-                            <button type="submit" class="btn btn-warning w-100 fw-bold">
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow">
                                 <i class="fa-solid fa-plus me-1"></i> Agregar Producto
                             </button>
                         </div>
@@ -84,13 +115,13 @@
             </div>
         </div>
 
-        <!-- SECCIÓN FINAL: ACCESOS DIRECTOS DEL MENÚ Y QR (Ubicados al final para asegurar el flujo correcto) -->
-        <div class="card card-custom mt-5 p-4 text-center shadow-lg border-warning">
-            <h4 class="text-white fw-bold mb-3"><i class="fa-solid fa-rocket text-warning me-2"></i> ¡Tu Menú Está Listo para el Público!</h4>
-            <p class="text-muted mb-4">Una vez que hayas cargado tus productos y precios, utiliza los siguientes accesos:</p>
+        <!-- SECCIÓN FINAL: ACCESOS DIRECTOS DEL MENÚ Y QR (Centrada y Receptiva) -->
+        <div class="card card-custom mt-4 p-4 text-center shadow-lg border-warning">
+            <h4 class="text-white fw-bold mb-2"><i class="fa-solid fa-rocket text-warning me-2"></i> ¡Tu Menú Está Listo para el Público!</h4>
+            <p class="text-muted-custom mb-4">Una vez que hayas cargado tus productos y precios, utiliza los siguientes accesos:</p>
             
-            <div class="d-flex flex-wrap justify-content-center gap-3">
-                <a href="/menu/{{ usuario.id }}" target="_blank" class="btn btn-warning btn-lg fw-bold px-4 py-3">
+            <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                <a href="/menu/{{ usuario.id }}" target="_blank" class="btn btn-warning btn-lg fw-bold px-4 py-3 shadow">
                     <i class="fa-solid fa-eye me-2"></i> Ver Mi Menú Público
                 </a>
                 <a href="/qr/{{ usuario.id }}" target="_blank" class="btn btn-outline-light btn-lg fw-bold px-4 py-3">
