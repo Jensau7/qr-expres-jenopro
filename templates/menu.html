@@ -6,38 +6,56 @@
     <title>Menú - {{ negocio.nombre }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
+        body { background-color: #f8f9fa; padding-bottom: 100px; }
         .product-card { border-radius: 12px; overflow: hidden; }
+        .floating-cart {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
     <div class="container py-4" style="max-width: 600px;">
+        <!-- Encabezado del Negocio -->
         <div class="text-center mb-4">
             <h1 class="fw-bold">{{ negocio.nombre }}</h1>
-            <p class="text-muted">📱 Pedidos por WhatsApp: <a href="https://wa.me/{{ negocio.telefono }}" class="text-decoration-none fw-bold" target="_blank">{{ negocio.telefono }}</a></p>
+            <p class="text-muted">📱 Pedidos directos a WhatsApp</p>
             <hr>
         </div>
 
-        <h4 class="mb-3 fw-bold">Nuestro Menú</h4>
+        <h4 class="mb-3 fw-bold">Elige tus productos</h4>
 
         {% if negocio.productos %}
             <div class="row g-3">
                 {% for prod in negocio.productos %}
                     <div class="col-12">
-                        <div class="card product-card shadow-sm flex-row align-items-center p-2">
+                        <div class="card product-card shadow-sm p-2 flex-row align-items-center">
                             {% if prod.imagen %}
-                                <img src="{{ url_for('static', filename='uploads/' + prod.imagen) }}" class="rounded" style="width: 90px; height: 90px; object-fit: cover;">
+                                <img src="{{ url_for('static', filename='uploads/' + prod.imagen) }}" class="rounded" style="width: 85px; height: 85px; object-fit: cover;">
                             {% else %}
-                                <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center" style="width: 90px; height: 90px;">
+                                <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center" style="width: 85px; height: 85px;">
                                     🌮
                                 </div>
                             {% endif %}
+                            
                             <div class="card-body py-1 px-3">
                                 <div class="d-flex justify-content-between align-items-start">
-                                    <h5 class="card-title mb-1 fw-bold">{{ prod.nombre }}</h5>
+                                    <h6 class="card-title mb-1 fw-bold">{{ prod.nombre }}</h6>
                                     <span class="badge bg-success fs-6">${{ "%.2f"|format(prod.precio) }}</span>
                                 </div>
-                                <p class="card-text text-muted small mb-0">{{ prod.descripcion }}</p>
+                                <p class="card-text text-muted small mb-2">{{ prod.descripcion or 'Sin descripción' }}</p>
+                                
+                                <!-- Controles de Selección/Cantidad -->
+                                <div class="d-flex align-items-center justify-content-end">
+                                    <button class="btn btn-sm btn-outline-danger me-2 px-2 py-0 fw-bold" onclick="cambiarCantidad('{{ prod.nombre }}', {{ prod.precio }}, -1)">-</button>
+                                    <span id="cant-{{ loop.index }}" class="fw-bold me-2">0</span>
+                                    <button class="btn btn-sm btn-outline-success px-2 py-0 fw-bold" onclick="cambiarCantidad('{{ prod.nombre }}', {{ prod.precio }}, 1)">+</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -49,5 +67,79 @@
             </div>
         {% endif %}
     </div>
+
+    <!-- Barra Flotante de Carrito -->
+    <div id="cart-bar" class="floating-cart d-none">
+        <button class="btn btn-success btn-lg w-100 shadow-lg d-flex justify-content-between align-items-center" onclick="enviarPedido()">
+            <span>🛒 Realizar Pedido (<span id="total-items">0</span>)</span>
+            <span class="fw-bold" id="total-precio">$0.00 MXN</span>
+        </button>
+    </div>
+
+    <script>
+        const carrito = {};
+        const telefonoNegocio = "{{ negocio.telefono }}";
+        const nombreNegocio = "{{ negocio.nombre }}";
+
+        function cambiarCantidad(nombre, precio, cambio) {
+            if (!carrito[nombre]) {
+                carrito[nombre] = { cantidad: 0, precio: precio };
+            }
+            
+            carrito[nombre].cantidad += cambio;
+            
+            if (carrito[nombre].cantidad <= 0) {
+                delete carrito[nombre];
+            }
+
+            actualizarInterfaz();
+        }
+
+        function actualizarInterfaz() {
+            let totalItems = 0;
+            let totalPrecio = 0;
+
+            // Actualizar contadores por producto
+            {% for prod in negocio.productos %}
+                const cantSpan = document.getElementById("cant-{{ loop.index }}");
+                if (cantSpan) {
+                    const item = carrito["{{ prod.nombre }}"];
+                    cantSpan.innerText = item ? item.cantidad : 0;
+                }
+            {% endfor %}
+
+            // Calcular totales
+            for (const key in carrito) {
+                totalItems += carrito[key].cantidad;
+                totalPrecio += carrito[key].cantidad * carrito[key].precio;
+            }
+
+            const cartBar = document.getElementById("cart-bar");
+            document.getElementById("total-items").innerText = totalItems;
+            document.getElementById("total-precio").innerText = `$${totalPrecio.toFixed(2)} MXN`;
+
+            if (totalItems > 0) {
+                cartBar.classList.remove("d-none");
+            } else {
+                cartBar.classList.add("d-none");
+            }
+        }
+
+        function enviarPedido() {
+            let mensaje = `*¡Hola ${nombreNegocio}! Quisiera realizar el siguiente pedido:*\n\n`;
+            let total = 0;
+
+            for (const prod in carrito) {
+                const subtotal = carrito[prod].cantidad * carrito[prod].precio;
+                total += subtotal;
+                mensaje += `• ${carrito[prod].cantidad}x ${prod} - $${subtotal.toFixed(2)}\n`;
+            }
+
+            mensaje += `\n*Total a pagar: $${total.toFixed(2)} MXN*`;
+
+            const url = `https://wa.me/${telefonoNegocio}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+    </script>
 </body>
 </html>
