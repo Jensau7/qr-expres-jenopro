@@ -3,203 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel - {{ negocio.nombre }}</title>
+    <title>Panel de Administración - JeNoPro QR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+        .navbar-custom {
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+        }
+        .card-custom {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="container py-4">
-        <div class="card shadow-sm mb-4">
-            <div class="card-body text-center">
-                <h2 class="fw-bold">{{ negocio.nombre }}</h2>
-                <p class="text-muted mb-2">📱 Teléfono: {{ negocio.telefono }}</p>
-                <p>Estado de la cuenta: 
-                    {% if negocio.estado == 'Active' %}
-                        <span class="badge bg-success fs-6">Activa</span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark fs-6">Borrador (Draft)</span>
-                    {% endif %}
-                </p>
+<body>
 
-                {% if negocio.estado != 'Active' %}
-                    <form action="/pagar/{{ negocio.id }}" method="POST">
-                        <button type="submit" class="btn btn-primary btn-lg">Pagar Activación ($50 MXN)</button>
-                    </form>
-                {% else %}
-                    <div class="alert alert-success fw-bold">
-                        ¡Felicidades! Tu negocio se encuentra activo en QR JeNoPro.
-                    </div>
-                    <div class="d-flex justify-content-center gap-2 flex-wrap">
-                        <a href="/menu/{{ negocio.slug }}" target="_blank" class="btn btn-outline-primary">👁️ Ver mi Menú Público</a>
-                        <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#qrModal">
-                            📱 Mi Código QR para Mesas
-                        </button>
-                    </div>
-                {% endif %}
+    <!-- Barra de Navegación Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom px-4 mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold text-warning" href="#">
+                <i class="fa-solid fa-bolt me-2"></i> JeNoPro QR | {{ usuario.nombre }}
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="/logout" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
             </div>
         </div>
+    </nav>
 
-        {% if negocio.estado == 'Active' %}
-        <!-- Leyenda de Aviso sobre Actualizaciones y Renovaciones -->
-        <div class="alert alert-warning border-warning shadow-sm mb-4" role="alert">
-            <h5 class="fw-bold mb-1">💡 Política de Actualización de Menú & Precios</h5>
-            <p class="small mb-0">
-                Estimado cliente: Las actualizaciones completas de galería, cambios masivos de precios o rediseños de menú tienen un costo por renovación de soporte y mantenimiento (chip/actualización). Para solicitar cambios o renovaciones, comunícate con el administrador.
-            </p>
-        </div>
+    <div class="container">
 
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-3">🎨 Plantilla Visual</h5>
-                        <form action="/cambiar_tema/{{ negocio.id }}" method="POST" class="mb-4">
-                            <select name="tema" class="form-select mb-2">
-                                <option value="carpinteria" {% if negocio.tema == 'carpinteria' %}selected{% endif %}>🪵 Carpintería & Ebanistería</option>
-                                <option value="herreria" {% if negocio.tema == 'herreria' %}selected{% endif %}>🛠️ Herrería & Metal</option>
-                                <option value="eventos" {% if negocio.tema == 'eventos' %}selected{% endif %}>🎉 Eventos & Fiestas</option>
-                                <option value="perfumeria" {% if negocio.tema == 'perfumeria' %}selected{% endif %}>🌸 Perfumería & Elegancia</option>
-                                <option value="taqueria" {% if negocio.tema == 'taqueria' %}selected{% endif %}>🌮 Taquería & Fast Food</option>
-                                <option value="cafeteria" {% if negocio.tema == 'cafeteria' %}selected{% endif %}>☕ Cafetería & Bakery</option>
-                                <option value="dark" {% if negocio.tema == 'dark' %}selected{% endif %}>🌙 Luxury Dark Mode</option>
-                                <option value="healthy" {% if negocio.tema == 'healthy' %}selected{% endif %}>🥗 Fresh & Healthy</option>
-                            </select>
-                            <button type="submit" class="btn btn-dark w-100 fw-bold">Guardar Plantilla</button>
-                        </form>
-
-                        <hr>
-
-                        <h5 class="fw-bold mb-3">🖼️ Branding (Logo & Banner)</h5>
-                        <form action="/actualizar_branding/{{ negocio.id }}" method="POST" enctype="multipart/form-data">
-                            <div class="mb-2">
-                                <label class="form-label small fw-bold">Logo del negocio (Cuadrado)</label>
-                                <input type="file" name="logo" class="form-control form-control-sm" accept="image/*">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Banner / Portada Superior</label>
-                                <input type="file" name="banner" class="form-control form-control-sm" accept="image/*">
-                            </div>
-                            <button type="submit" class="btn btn-outline-dark w-100 fw-bold btn-sm">Subir Imágenes de Marca</button>
-                        </form>
-                    </div>
+        <!-- ALERTA DE POLÍTICA DE ACTUALIZACIÓN AL INICIAR SESIÓN -->
+        {% if session.get('mostrar_aviso') %}
+        <div class="alert alert-warning alert-dismissible fade show shadow-lg border-2 border-warning mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-triangle-exclamation fs-3 me-3 text-warning"></i>
+                <div>
+                    <h5 class="alert-heading fw-bold mb-1">Aviso Importante de Mantenimiento</h5>
+                    <p class="mb-0 text-dark">Te recordamos que cada vez que desees realizar cambios o modificaciones en tu menú, se te estará cobrando una cuota de <strong>$50 pesos</strong> por la renovación.</p>
                 </div>
             </div>
-
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="card-title mb-0">Agregar Nuevo Producto / Servicio</h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ url_for('agregar_producto', negocio_id=negocio.id) }}" method="POST" enctype="multipart/form-data">
-                            <div class="mb-2">
-                                <label class="form-label fw-bold">Nombre del producto</label>
-                                <input type="text" name="nombre" class="form-control" placeholder="Ej. Mesa de Roble" required>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label fw-bold">Categoría</label>
-                                <input type="text" name="categoria" class="form-control" placeholder="Ej. Comedores, Portones..." required>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label fw-bold">Precio ($ MXN)</label>
-                                <input type="number" step="0.01" name="precio" class="form-control" placeholder="1500.00" required>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label fw-bold">Descripción</label>
-                                <textarea name="descripcion" class="form-control" rows="2" placeholder="Detalles..."></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Foto del producto</label>
-                                <input type="file" name="imagen" class="form-control" accept="image/*">
-                            </div>
-                            <button type="submit" class="btn btn-success w-100 fw-bold py-2">Guardar Producto</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-dark text-white">
-                <h5 class="card-title mb-0">Lista de Productos Cargados</h5>
-            </div>
-            <div class="card-body">
-                {% if negocio.productos %}
-                    <div class="list-group">
-                        {% for prod in negocio.productos %}
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    {% if prod.imagen %}
-                                        <img src="{{ url_for('static', filename='uploads/' + prod.imagen) }}" class="rounded me-3" style="width: 55px; height: 55px; object-fit: cover;">
-                                    {% else %}
-                                        <div class="bg-light text-muted rounded me-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border: 1px solid #ddd;">
-                                            📦
-                                        </div>
-                                    {% endif %}
-                                    <div>
-                                        <h6 class="mb-0 fw-bold">{{ prod.nombre }}</h6>
-                                        <small class="badge bg-secondary mb-1">{{ prod.categoria }}</small>
-                                        <div class="small text-muted">{{ prod.descripcion or 'Sin descripción' }}</div>
-                                    </div>
-                                </div>
-                                <span class="badge bg-primary rounded-pill fs-6">${{ "%.2f"|format(prod.precio) }}</span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-muted text-center mb-0">Aún no has agregado productos a tu menú.</p>
-                {% endif %}
-            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="fetch('/quitar_aviso')"></button>
         </div>
         {% endif %}
-    </div>
 
-    <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-center">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Código QR de {{ negocio.nombre }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body py-4">
-                    <p class="text-muted small">Escanea o descarga este código QR</p>
-                    <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
-                    <p class="fw-bold mb-3 text-primary" id="url-text"></p>
-                    <button onclick="descargarQR()" class="btn btn-success fw-bold">⬇️ Descargar QR como Imagen (.PNG)</button>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <!-- SECCIÓN DE ADMINISTRACIÓN Y CARGA DE PRODUCTOS -->
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="card card-custom p-4 shadow-lg">
+                    <h3 class="text-white fw-bold mb-3"><i class="fa-solid fa-boxes-stacked text-warning me-2"></i> Gestión de Productos y Menú</h3>
+                    <p class="text-muted">Carga aquí los platillos, servicios o artículos de tu catálogo antes de generar tus códigos QR y enlaces públicos.</p>
+                    
+                    <!-- Formulario o tabla de productos de tu panel actual -->
+                    <hr class="border-secondary my-4">
+                    
+                    <form action="/agregar_producto" method="POST" class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold text-uppercase">Nombre del Producto / Platillo</label>
+                            <input type="text" name="nombre_prod" class="form-control bg-dark text-white border-secondary" placeholder="Ej. Tacos de Bistec / Mesa de Centro" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase">Precio ($ MXN)</label>
+                            <input type="number" name="precio" class="form-control bg-dark text-white border-secondary" placeholder="Ej. 120" required>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-warning w-100 fw-bold">
+                                <i class="fa-solid fa-plus me-1"></i> Agregar Producto
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+
+        <!-- SECCIÓN FINAL: ACCESOS DIRECTOS DEL MENÚ Y QR (Ubicados al final para asegurar el flujo correcto) -->
+        <div class="card card-custom mt-5 p-4 text-center shadow-lg border-warning">
+            <h4 class="text-white fw-bold mb-3"><i class="fa-solid fa-rocket text-warning me-2"></i> ¡Tu Menú Está Listo para el Público!</h4>
+            <p class="text-muted mb-4">Una vez que hayas cargado tus productos y precios, utiliza los siguientes accesos:</p>
+            
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="/menu/{{ usuario.id }}" target="_blank" class="btn btn-warning btn-lg fw-bold px-4 py-3">
+                    <i class="fa-solid fa-eye me-2"></i> Ver Mi Menú Público
+                </a>
+                <a href="/qr/{{ usuario.id }}" target="_blank" class="btn btn-outline-light btn-lg fw-bold px-4 py-3">
+                    <i class="fa-solid fa-qrcode me-2"></i> Código QR para Mesas
+                </a>
+            </div>
+        </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const menuUrl = window.location.origin + "/menu/{{ negocio.slug }}";
-        const urlText = document.getElementById("url-text");
-        if(urlText) urlText.innerText = menuUrl;
-        const qrcodeContainer = document.getElementById("qrcode");
-        if(qrcodeContainer) {
-            new QRCode(qrcodeContainer, { text: menuUrl, width: 220, height: 220 });
-        }
-        function descargarQR() {
-            const img = qrcodeContainer.querySelector("img");
-            if (img && img.src) {
-                const link = document.createElement("a");
-                link.href = img.src;
-                link.download = "Codigo_QR_{{ negocio.slug }}.png";
-                link.click();
-            } else {
-                const canvas = qrcodeContainer.querySelector("canvas");
-                if (canvas) {
-                    const link = document.createElement("a");
-                    link.href = canvas.toDataURL("image/png");
-                    link.download = "Codigo_QR_{{ negocio.slug }}.png";
-                    link.click();
-                }
-            }
-        }
-    </script>
 </body>
 </html>
