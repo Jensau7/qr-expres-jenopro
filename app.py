@@ -2,21 +2,24 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.secret_key = 'tu_clave_secreta_super_segura'  # Mantén tu secret key actual
+app.secret_key = 'tu_clave_secreta_super_segura'
 
-# Configuración de tu base de datos (ajusta si usas otra ruta o URI)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db' # O tu configuración actual
+# Configuración de base de datos
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# ==========================================
-# TUS MODELOS ORIGINALES (Asegúrate de conservar tus tablas)
-# ==========================================
+# Modelo de Usuario
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
+    telefono = db.Column(db.String(30), nullable=True)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+
+# Crear tablas al iniciar
+with app.app_context():
+    db.create_all()
 
 # ==========================================
 # RUTAS DE LA APLICACIÓN
@@ -24,7 +27,33 @@ class Usuario(db.Model):
 
 @app.route('/')
 def index():
-    return redirect(url_for('login'))
+    return redirect(url_for('registro'))
+
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        telefono = request.form.get('telefono')
+        correo = request.form.get('correo')
+        password = request.form.get('password')
+
+        # Buscar si ya existe el usuario
+        usuario_existente = Usuario.query.filter_by(correo=correo).first()
+        if usuario_existente:
+            user = usuario_existente
+        else:
+            nuevo_usuario = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password)
+            db.session.add(nuevo_usuario)
+            db.session.commit()
+            user = nuevo_usuario
+
+        # Iniciar sesión automáticamente
+        session['user_id'] = user.id
+        session['nombre_negocio'] = user.nombre
+        session['mostrar_aviso'] = True
+        return redirect(url_for('panel'))
+
+    return render_template('registro.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -32,13 +61,11 @@ def login():
         correo = request.form.get('correo')
         password = request.form.get('password')
         
-        # Consulta original a tu base de datos
         user = Usuario.query.filter_by(correo=correo, password=password).first()
-        
         if user:
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
-            session['mostrar_aviso'] = True  # <-- Activa la alerta de los $50 pesos al iniciar sesión
+            session['mostrar_aviso'] = True
             return redirect(url_for('panel'))
         else:
             return "Datos incorrectos, intenta de nuevo."
