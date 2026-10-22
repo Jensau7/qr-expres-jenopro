@@ -50,11 +50,11 @@
                                 </div>
                                 <p class="card-text text-muted small mb-2">{{ prod.descripcion or 'Sin descripción' }}</p>
                                 
-                                <!-- Controles de Selección/Cantidad -->
+                                <!-- Controles por ID de producto -->
                                 <div class="d-flex align-items-center justify-content-end">
-                                    <button class="btn btn-sm btn-outline-danger me-2 px-2 py-0 fw-bold" onclick="cambiarCantidad('{{ prod.nombre }}', {{ prod.precio }}, -1)">-</button>
-                                    <span id="cant-{{ loop.index }}" class="fw-bold me-2">0</span>
-                                    <button class="btn btn-sm btn-outline-success px-2 py-0 fw-bold" onclick="cambiarCantidad('{{ prod.nombre }}', {{ prod.precio }}, 1)">+</button>
+                                    <button class="btn btn-sm btn-outline-danger me-2 px-2 py-0 fw-bold" onclick="cambiarCantidad({{ prod.id }}, '{{ prod.nombre }}', {{ prod.precio }}, -1)">-</button>
+                                    <span id="cant-{{ prod.id }}" class="fw-bold me-2">0</span>
+                                    <button class="btn btn-sm btn-outline-success px-2 py-0 fw-bold" onclick="cambiarCantidad({{ prod.id }}, '{{ prod.nombre }}', {{ prod.precio }}, 1)">+</button>
                                 </div>
                             </div>
                         </div>
@@ -81,15 +81,15 @@
         const telefonoNegocio = "{{ negocio.telefono }}";
         const nombreNegocio = "{{ negocio.nombre }}";
 
-        function cambiarCantidad(nombre, precio, cambio) {
-            if (!carrito[nombre]) {
-                carrito[nombre] = { cantidad: 0, precio: precio };
+        function cambiarCantidad(id, nombre, precio, cambio) {
+            if (!carrito[id]) {
+                carrito[id] = { nombre: nombre, cantidad: 0, precio: precio };
             }
             
-            carrito[nombre].cantidad += cambio;
+            carrito[id].cantidad += cambio;
             
-            if (carrito[nombre].cantidad <= 0) {
-                delete carrito[nombre];
+            if (carrito[id].cantidad <= 0) {
+                delete carrito[id];
             }
 
             actualizarInterfaz();
@@ -99,19 +99,17 @@
             let totalItems = 0;
             let totalPrecio = 0;
 
-            // Actualizar contadores por producto
-            {% for prod in negocio.productos %}
-                const cantSpan = document.getElementById("cant-{{ loop.index }}");
-                if (cantSpan) {
-                    const item = carrito["{{ prod.nombre }}"];
-                    cantSpan.innerText = item ? item.cantidad : 0;
-                }
-            {% endfor %}
+            // Restablecer contadores visuales
+            document.querySelectorAll('[id^="cant-"]').forEach(el => el.innerText = "0");
 
-            // Calcular totales
-            for (const key in carrito) {
-                totalItems += carrito[key].cantidad;
-                totalPrecio += carrito[key].cantidad * carrito[key].precio;
+            // Actualizar con los valores actuales del carrito
+            for (const id in carrito) {
+                const cantSpan = document.getElementById(`cant-${id}`);
+                if (cantSpan) {
+                    cantSpan.innerText = carrito[id].cantidad;
+                }
+                totalItems += carrito[id].cantidad;
+                totalPrecio += carrito[id].cantidad * carrito[id].precio;
             }
 
             const cartBar = document.getElementById("cart-bar");
@@ -129,10 +127,11 @@
             let mensaje = `*¡Hola ${nombreNegocio}! Quisiera realizar el siguiente pedido:*\n\n`;
             let total = 0;
 
-            for (const prod in carrito) {
-                const subtotal = carrito[prod].cantidad * carrito[prod].precio;
+            for (const id in carrito) {
+                const item = carrito[id];
+                const subtotal = item.cantidad * item.precio;
                 total += subtotal;
-                mensaje += `• ${carrito[prod].cantidad}x ${prod} - $${subtotal.toFixed(2)}\n`;
+                mensaje += `• ${item.cantidad}x ${item.nombre} - $${subtotal.toFixed(2)}\n`;
             }
 
             mensaje += `\n*Total a pagar: $${total.toFixed(2)} MXN*`;
