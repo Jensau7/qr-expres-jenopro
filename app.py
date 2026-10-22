@@ -14,7 +14,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 
-# MODELOS ACTUALIZADOS
+# MODELOS
 class Negocio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
@@ -37,8 +37,19 @@ class Producto(db.Model):
     imagen = db.Column(db.String(255))
     negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
 
+# AUTO-MIGRACIÓN PARA REPARAR BASE DE DATOS VIEJA
 with app.app_context():
     db.create_all()
+    # Ejecutamos alter table silencioso por si la base de datos es previa
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(db.text("ALTER TABLE negocio ADD COLUMN tema VARCHAR(30) DEFAULT 'carpinteria';"))
+            conn.execute(db.text("ALTER TABLE negocio ADD COLUMN logo VARCHAR(255);"))
+            conn.execute(db.text("ALTER TABLE negocio ADD COLUMN banner VARCHAR(255);"))
+            conn.execute(db.text("ALTER TABLE producto ADD COLUMN categoria VARCHAR(50) DEFAULT 'General';"))
+            conn.commit()
+    except Exception:
+        pass  # Si las columnas ya existen, ignora el error
 
 def generar_slug(texto):
     texto = texto.lower().strip()
@@ -164,7 +175,6 @@ def agregar_producto(negocio_id):
 def menu_publico(slug):
     negocio = Negocio.query.filter_by(slug=slug).first_or_404()
     
-    # Agrupar productos por categoría
     categorias_dict = {}
     for prod in negocio.productos:
         cat = prod.categoria if prod.categoria else 'General'
