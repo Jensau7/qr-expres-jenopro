@@ -10,47 +10,83 @@
         .banner-container { width: 100%; height: 160px; background-color: #333; overflow: hidden; position: relative; }
         .banner-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
         .logo-avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #fff; object-fit: cover; margin-top: -45px; position: relative; z-index: 10; background: #fff; }
-        .product-card { border-radius: 12px; overflow: hidden; transition: transform 0.2s; }
+        .product-card { border-radius: 12px; overflow: hidden; transition: transform 0.2s; backdrop-filter: blur(5px); }
         .product-card:hover { transform: translateY(-2px); }
         .floating-cart { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; z-index: 1000; }
 
-        body.theme-carpinteria { background-color: #2b1d14; color: #f4e9dc; }
-        .theme-carpinteria .product-card { background-color: #3d2b1f; border: 1px solid #5c402d; color: #f4e9dc; }
+        /* TEMA 1: CARPINTERÍA & EBANISTERÍA (Efecto Madera & Herramientas) */
+        body.theme-carpinteria { 
+            background: linear-gradient(135deg, #2b1d14 0%, #1a110a 100%); 
+            color: #f4e9dc; 
+            background-image: radial-gradient(#5c402d 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .theme-carpinteria .product-card { background-color: rgba(61, 43, 31, 0.9); border: 1px solid #7c533c; color: #f4e9dc; }
         .theme-carpinteria .badge-price { background-color: #d97706; color: #fff; }
         .theme-carpinteria .btn-cart { background-color: #d97706; border-color: #b45309; color: #fff; }
 
-        body.theme-herreria { background-color: #0f172a; color: #e2e8f0; }
-        .theme-herreria .product-card { background-color: #1e293b; border: 1px solid #334155; color: #f8fafc; }
+        /* TEMA 2: HERRERÍA & METAL (Acero Industrial) */
+        body.theme-herreria { 
+            background: linear-gradient(135deg, #0f172a 0%, #020617 100%); 
+            color: #e2e8f0;
+            background-image: linear-gradient(rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .theme-herreria .product-card { background-color: rgba(30, 41, 59, 0.9); border: 1px solid #475569; color: #f8fafc; }
         .theme-herreria .badge-price { background-color: #0284c7; color: #fff; }
         .theme-herreria .btn-cart { background-color: #0284c7; border-color: #0369a1; color: #fff; }
 
-        body.theme-eventos { background-color: #faf5ff; color: #3b0764; }
+        /* TEMA 3: EVENTOS & FIESTAS */
+        body.theme-eventos { 
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); 
+            color: #3b0764; 
+        }
         .theme-eventos .product-card { background-color: #ffffff; border: 1px solid #e9d5ff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.08); }
         .theme-eventos .badge-price { background-color: #7c3aed; color: #fff; }
         .theme-eventos .btn-cart { background-color: #7c3aed; border-color: #6d28d9; color: #fff; }
 
-        body.theme-perfumeria { background-color: #faf5f5; color: #332228; }
-        .theme-perfumeria .product-card { background-color: #ffffff; border: 1px solid #f0d5da; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .theme-perfumeria .badge-price { background-color: #9f1239; color: #fff; }
-        .theme-perfumeria .btn-cart { background-color: #9f1239; border-color: #881337; color: #fff; }
+        /* TEMA 4: PERFUMERÍA & ELEGANCIA */
+        body.theme-perfumeria { 
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); 
+            color: #4c0519; 
+        }
+        .theme-perfumeria .product-card { background-color: #ffffff; border: 1px solid #fecdd3; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.05); }
+        .theme-perfumeria .badge-price { background-color: #e11d48; color: #fff; }
+        .theme-perfumeria .btn-cart { background-color: #e11d48; border-color: #be123c; color: #fff; }
 
-        body.theme-taqueria { background-color: #f8f9fa; color: #212529; }
-        .theme-taqueria .product-card { background-color: #ffffff; border: 1px solid #e5e7eb; }
-        .theme-taqueria .badge-price { background-color: #16a34a; color: #fff; }
-        .theme-taqueria .btn-cart { background-color: #16a34a; border-color: #15803d; color: #fff; }
+        /* TEMA 5: TAQUERÍA & FAST FOOD */
+        body.theme-taqueria { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); 
+            color: #7f1d1d; 
+        }
+        .theme-taqueria .product-card { background-color: #ffffff; border: 1px solid #fca5a5; }
+        .theme-taqueria .badge-price { background-color: #dc2626; color: #fff; }
+        .theme-taqueria .btn-cart { background-color: #dc2626; border-color: #b91c1c; color: #fff; }
 
-        body.theme-cafeteria { background-color: #fdfbf7; color: #4a3b32; }
-        .theme-cafeteria .product-card { background-color: #ffffff; border: 1px solid #e8dec8; }
-        .theme-cafeteria .badge-price { background-color: #78350f; color: #fff; }
-        .theme-cafeteria .btn-cart { background-color: #78350f; border-color: #451a03; color: #fff; }
+        /* TEMA 6: CAFETERÍA & BAKERY */
+        body.theme-cafeteria { 
+            background: linear-gradient(135deg, #fdf8f6 0%, #f7fee7 100%); 
+            color: #451a03; 
+        }
+        .theme-cafeteria .product-card { background-color: #ffffff; border: 1px solid #fed7aa; }
+        .theme-cafeteria .badge-price { background-color: #b45309; color: #fff; }
+        .theme-cafeteria .btn-cart { background-color: #b45309; border-color: #92400e; color: #fff; }
 
-        body.theme-dark { background-color: #121212; color: #e0e0e0; }
-        .theme-dark .product-card { background-color: #1e1e1e; border: 1px solid #333; }
+        /* TEMA 7: LUXURY DARK */
+        body.theme-dark { 
+            background: linear-gradient(135deg, #09090b 100%, #18181b 0%); 
+            color: #f4f4f5; 
+        }
+        .theme-dark .product-card { background-color: #18181b; border: 1px solid #27272a; }
         .theme-dark .badge-price { background-color: #eab308; color: #000; font-weight: bold; }
         .theme-dark .btn-cart { background-color: #eab308; border-color: #ca8a04; color: #000; }
 
-        body.theme-healthy { background-color: #f0fdf4; color: #14532d; }
-        .theme-healthy .product-card { background-color: #ffffff; border: 1px solid #bbf7d0; }
+        /* TEMA 8: FRESH & HEALTHY */
+        body.theme-healthy { 
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); 
+            color: #064e3b; 
+        }
+        .theme-healthy .product-card { background-color: #ffffff; border: 1px solid #a7f3d0; }
         .theme-healthy .badge-price { background-color: #059669; color: #fff; }
         .theme-healthy .btn-cart { background-color: #059669; border-color: #047857; color: #fff; }
     </style>
