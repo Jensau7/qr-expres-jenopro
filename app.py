@@ -22,7 +22,7 @@ class Usuario(db.Model):
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     estado = db.Column(db.String(20), default='Activo') # 'Activo' o 'Pendiente'
-    primer_ingreso = db.Column(db.Boolean, default=True) # Para controlar la primera sesión
+    primer_ingreso = db.Column(db.Boolean, default=True) # Registro inicial
     productos = db.relationship('Producto', backref='usuario', lazy=True, cascade='all, delete-orphan')
 
 class Producto(db.Model):
@@ -50,14 +50,13 @@ def registro():
 
         user = Usuario.query.filter_by(correo=correo).first()
         if not user:
-            # Pago inicial ($50 MXN) ya realizado al registrarse: inicia 'Activo'
+            # Al registrarse ya pagó sus primeros $50 MXN: entra 'Activo'
             user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Activo', primer_ingreso=True)
             db.session.add(user)
             db.session.commit()
 
         session['user_id'] = user.id
         session['nombre_negocio'] = user.nombre
-        session['mostrar_aviso'] = True
         return redirect(url_for('panel'))
 
     return render_template('registro.html')
@@ -70,24 +69,18 @@ def login():
         
         user = Usuario.query.filter_by(correo=correo, password=password).first()
         if user:
-            # Si ya NO es su primera sesión, pasa a estado 'Pendiente' para requerir $50 MXN por cambios
+            # Si NO es su registro inicial, al iniciar sesión requiere nuevo pago de $50 MXN
             if not user.primer_ingreso:
                 user.estado = 'Pendiente'
                 db.session.commit()
 
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
-            session['mostrar_aviso'] = True
             return redirect(url_for('panel'))
         else:
             return "Datos incorrectos, intenta de nuevo."
             
     return render_template('login.html')
-
-@app.route('/quitar_aviso')
-def quitar_aviso():
-    session.pop('mostrar_aviso', None)
-    return '', 204
 
 @app.route('/panel')
 def panel():
@@ -105,7 +98,7 @@ def agregar_producto():
     
     usuario = Usuario.query.get(session['user_id'])
     if usuario.estado != 'Activo':
-        return "Tu cuenta está pendiente de pago ($50 MXN) para realizar modificaciones.", 403
+        return "Se requiere pago de $50 MXN por actualización para agregar productos.", 403
 
     nombre_prod = request.form.get('nombre_prod')
     precio = request.form.get('precio')
@@ -137,7 +130,7 @@ def eliminar_producto(id):
     
     usuario = Usuario.query.get(session['user_id'])
     if usuario.estado != 'Activo':
-        return "Tu cuenta está pendiente de pago ($50 MXN) para realizar modificaciones.", 403
+        return "Se requiere pago de $50 MXN por actualización para eliminar productos.", 403
 
     producto = Producto.query.get_or_404(id)
     if producto.usuario_id == session['user_id']:
@@ -145,7 +138,7 @@ def eliminar_producto(id):
         db.session.commit()
     return redirect(url_for('panel'))
 
-# RUTA PARA QUE TÚ COMO ADMIN RECTIFIQUES EL PAGO Y LE DES ACCESO
+# ACTIVACIÓN MANUAL POR ADMIN AL RECIBIR LOS $50 MXN
 @app.route('/admin/cambiar_estado/<int:user_id>/<string:nuevo_estado>')
 def cambiar_estado(user_id, nuevo_estado):
     usuario = Usuario.query.get_or_404(user_id)
@@ -169,8 +162,8 @@ def logout():
     if 'user_id' in session:
         usuario = Usuario.query.get(session['user_id'])
         if usuario:
-            usuario.primer_ingreso = False # Al salir se marca que ya agotó su primera carga
-            usuario.estado = 'Pendiente'   # Para que al volver a entrar le pida $50 MXN
+            usuario.primer_ingreso = False # Concluye su primer ingreso
+            usuario.estado = 'Pendiente'   # Para que al volver a ingresar requiera $50 MXN
             db.session.commit()
     session.clear()
     return redirect(url_for('login'))
