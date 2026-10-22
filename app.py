@@ -39,25 +39,6 @@ with app.app_context():
 def index():
     return redirect(url_for('login'))
 
-# RUTA ESPECIAL PARA CREAR/ASEGURAR EL USUARIO FIJO
-@app.route('/crear_usuario_fijo')
-def crear_usuario_fijo():
-    user = Usuario.query.filter_by(correo='contacto@ingenio.com').first()
-    if not user:
-        user = Usuario(
-            nombre='INGENIO EN MADERA',
-            telefono='526141234567',
-            correo='contacto@ingenio.com',
-            password='123456',
-            estado='Pendiente'
-        )
-        db.session.add(user)
-    else:
-        user.password = '123456'
-        user.estado = 'Pendiente'
-    db.session.commit()
-    return "Usuario fijo creado/actualizado con exito: contacto@ingenio.com / 123456. Ya puedes iniciar sesion."
-
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
@@ -70,12 +51,11 @@ def registro():
         if user:
             user.password = password
             user.estado = 'Pendiente'
-            db.session.commit()
         else:
             user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
             db.session.add(user)
-            db.session.commit()
-
+        
+        db.session.commit()
         session['user_id'] = user.id
         session['nombre_negocio'] = user.nombre
         return redirect(url_for('panel'))
@@ -89,13 +69,26 @@ def login():
         correo = request.form.get('correo')
         password = request.form.get('password')
         
-        user = Usuario.query.filter_by(correo=correo, password=password).first()
-        if user:
+        user = Usuario.query.filter_by(correo=correo).first()
+        
+        # SI EL USUARIO NO EXISTE, LO CREA AUTOMÁTICAMENTE CON LA CONTRASEÑA QUE INGRESES
+        if not user:
+            user = Usuario(
+                nombre='INGENIO EN MADERA',
+                telefono='526141234567',
+                correo=correo,
+                password=password,
+                estado='Pendiente'
+            )
+            db.session.add(user)
+            db.session.commit()
+
+        if user.password == password:
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
             return redirect(url_for('panel'))
         else:
-            error = "Correo o contraseña incorrectos. Intenta de nuevo."
+            error = "Contraseña incorrecta."
             
     return render_template('login.html', error=error)
 
