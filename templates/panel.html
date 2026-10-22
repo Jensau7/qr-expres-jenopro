@@ -9,7 +9,6 @@
 </head>
 <body class="bg-light">
     <div class="container py-4">
-        <!-- Encabezado y Estado -->
         <div class="card shadow-sm mb-4">
             <div class="card-body text-center">
                 <h2 class="fw-bold">{{ negocio.nombre }}</h2>
@@ -42,21 +41,20 @@
 
         {% if negocio.estado == 'Active' %}
         <div class="row">
-            <!-- Configuración de Plantilla y Personalización de Marca -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h5 class="fw-bold mb-3">🎨 Plantilla Visual</h5>
                         <form action="/cambiar_tema/{{ negocio.id }}" method="POST" class="mb-4">
                             <select name="tema" class="form-select mb-2">
-                                <option value="carpinteria" {% if negocio.tema == 'carpinteria' %}selected{% endif %}>🪵 Carpintería & Ebanistería (Nogal & Ámbar)</option>
-                                <option value="herreria" {% if negocio.tema == 'herreria' %}selected{% endif %}>🛠️ Herrería & Metal (Acero Industrial)</option>
-                                <option value="eventos" {% if negocio.tema == 'eventos' %}selected{% endif %}>🎉 Eventos & Fiestas (Mobiliario & Alquiler)</option>
-                                <option value="perfumeria" {% if negocio.tema == 'perfumeria' %}selected{% endif %}>🌸 Perfumería & Elegancia (Rose Gold & Creme)</option>
-                                <option value="taqueria" {% if negocio.tema == 'taqueria' %}selected{% endif %}>🌮 Taquería & Fast Food (Rojo & Naranja)</option>
-                                <option value="cafeteria" {% if negocio.tema == 'cafeteria' %}selected{% endif %}>☕ Cafetería & Bakery (Café & Crema)</option>
-                                <option value="dark" {% if negocio.tema == 'dark' %}selected{% endif %}>🌙 Luxury Dark Mode (Negro & Dorado)</option>
-                                <option value="healthy" {% if negocio.tema == 'healthy' %}selected{% endif %}>🥗 Fresh & Healthy (Verde Esmeralda)</option>
+                                <option value="carpinteria" {% if negocio.tema == 'carpinteria' %}selected{% endif %}>🪵 Carpintería & Ebanistería</option>
+                                <option value="herreria" {% if negocio.tema == 'herreria' %}selected{% endif %}>🛠️ Herrería & Metal</option>
+                                <option value="eventos" {% if negocio.tema == 'eventos' %}selected{% endif %}>🎉 Eventos & Fiestas</option>
+                                <option value="perfumeria" {% if negocio.tema == 'perfumeria' %}selected{% endif %}>🌸 Perfumería & Elegancia</option>
+                                <option value="taqueria" {% if negocio.tema == 'taqueria' %}selected{% endif %}>🌮 Taquería & Fast Food</option>
+                                <option value="cafeteria" {% if negocio.tema == 'cafeteria' %}selected{% endif %}>☕ Cafetería & Bakery</option>
+                                <option value="dark" {% if negocio.tema == 'dark' %}selected{% endif %}>🌙 Luxury Dark Mode</option>
+                                <option value="healthy" {% if negocio.tema == 'healthy' %}selected{% endif %}>🥗 Fresh & Healthy</option>
                             </select>
                             <button type="submit" class="btn btn-dark w-100 fw-bold">Guardar Plantilla</button>
                         </form>
@@ -79,7 +77,6 @@
                 </div>
             </div>
 
-            <!-- Formulario Agregar Producto con Categoría -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-dark text-white">
@@ -89,11 +86,11 @@
                         <form action="{{ url_for('agregar_producto', negocio_id=negocio.id) }}" method="POST" enctype="multipart/form-data">
                             <div class="mb-2">
                                 <label class="form-label fw-bold">Nombre del producto</label>
-                                <input type="text" name="nombre" class="form-control" placeholder="Ej. Comedor Roble 6 Sillas / Portón Principal" required>
+                                <input type="text" name="nombre" class="form-control" placeholder="Ej. Mesa de Roble" required>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold">Categoría</label>
-                                <input type="text" name="categoria" class="form-control" placeholder="Ej. Comedores, Salones, Portones, Perfumes..." required>
+                                <input type="text" name="categoria" class="form-control" placeholder="Ej. Comedores, Portones..." required>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold">Precio ($ MXN)</label>
@@ -101,7 +98,7 @@
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold">Descripción</label>
-                                <textarea name="descripcion" class="form-control" rows="2" placeholder="Detalles de materiales, medidas, fragancia..."></textarea>
+                                <textarea name="descripcion" class="form-control" rows="2" placeholder="Detalles..."></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Foto del producto</label>
@@ -114,7 +111,6 @@
             </div>
         </div>
 
-        <!-- Lista de Productos -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-dark text-white">
                 <h5 class="card-title mb-0">Lista de Productos Cargados</h5>
@@ -150,7 +146,6 @@
         {% endif %}
     </div>
 
-    <!-- Modal para ver y Descargar el Código QR -->
     <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center">
@@ -159,13 +154,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body py-4">
-                    <p class="text-muted small">Escanea o descarga este código QR listo para imprimir en lonas o acrílicos</p>
+                    <p class="text-muted small">Escanea o descarga este código QR</p>
                     <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
                     <p class="fw-bold mb-3 text-primary" id="url-text"></p>
-                    
-                    <button onclick="descargarQR()" class="btn btn-success fw-bold">
-                        ⬇️ Descargar QR como Imagen (.PNG)
-                    </button>
+                    <button onclick="descargarQR()" class="btn btn-success fw-bold">⬇️ Descargar QR como Imagen (.PNG)</button>
                 </div>
                 <div class="modal-footer justify-content-center">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -179,18 +171,10 @@
         const menuUrl = window.location.origin + "/menu/{{ negocio.slug }}";
         const urlText = document.getElementById("url-text");
         if(urlText) urlText.innerText = menuUrl;
-
         const qrcodeContainer = document.getElementById("qrcode");
-        let qrCodeObj = null;
-
         if(qrcodeContainer) {
-            qrCodeObj = new QRCode(qrcodeContainer, {
-                text: menuUrl,
-                width: 220,
-                height: 220
-            });
+            new QRCode(qrcodeContainer, { text: menuUrl, width: 220, height: 220 });
         }
-
         function descargarQR() {
             const img = qrcodeContainer.querySelector("img");
             if (img && img.src) {
