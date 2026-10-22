@@ -10,28 +10,27 @@
         body {
             background-color: #0b0f19;
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(2, 132, 199, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.18) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(2, 132, 199, 0.12) 0%, transparent 50%);
             color: #f8fafc;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            padding: 20px 12px;
+            padding: 40px 20px;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* Marca de agua QR de fondo */
         body::before {
             content: "";
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
+            width: 800px;
+            height: 800px;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23ffffff' opacity='0.02'%3E%3Cpath d='M0 0h30v30H0zM10 10h10v10H10zM70 0h30v30H70zM80 10h10v10H80zM0 70h30v30H0zM10 80h10v10H10zM40 0h20v10H40zM40 20h10v20H40zM0 40h10v20H0zM20 50h20v10H20zM50 50h10v10H50zM70 40h30v10H70zM60 60h20v10H60zM50 80h20v20H50zM80 70h20v10H80zM90 90h10v10H90z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-size: contain;
@@ -41,29 +40,35 @@
 
         .card-registro {
             background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.15);
             width: 100%;
-            max-width: 520px;
-            padding: 35px 30px;
+            max-width: 680px;
+            padding: 45px 40px;
             position: relative;
             z-index: 1;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+        }
+
+        @media (max-width: 576px) {
+            .card-registro {
+                padding: 30px 20px;
+            }
         }
 
         .logo-container {
-            width: 110px;
-            height: 110px;
-            margin: 0 auto 15px auto;
+            width: 125px;
+            height: 125px;
+            margin: 0 auto 18px auto;
             border-radius: 50%;
             background: radial-gradient(circle, #2d3748 0%, #1a202c 100%);
-            border: 2px solid #f59e0b;
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+            border: 3px solid #f59e0b;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 8px;
+            padding: 10px;
         }
 
         .logo-svg {
@@ -74,19 +79,19 @@
         .badge-oficial {
             background: rgba(16, 185, 129, 0.15);
             color: #34d399;
-            border: 1px solid rgba(52, 211, 153, 0.3);
+            border: 1px solid rgba(52, 211, 153, 0.35);
             border-radius: 30px;
-            padding: 5px 14px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            padding: 6px 18px;
+            font-size: 0.88rem;
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 18px;
         }
 
         .title-brand {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             font-weight: 800;
             letter-spacing: -0.5px;
             background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
@@ -96,21 +101,21 @@
 
         .subtitle-brand {
             color: #f59e0b;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .form-label {
-            font-size: 0.75rem;
+            font-size: 0.82rem;
             font-weight: 700;
             letter-spacing: 0.8px;
             color: #cbd5e1;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .input-group-custom {
@@ -119,10 +124,11 @@
 
         .input-icon {
             position: absolute;
-            left: 14px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
             color: #64748b;
+            font-size: 1.1rem;
             z-index: 10;
         }
 
@@ -130,15 +136,15 @@
             background-color: #0b0f19 !important;
             border: 1px solid #334155 !important;
             color: #f8fafc !important;
-            padding: 12px 14px 12px 42px;
-            font-size: 0.95rem;
-            border-radius: 10px;
+            padding: 14px 16px 14px 48px;
+            font-size: 1.05rem;
+            border-radius: 12px;
             transition: all 0.2s ease;
         }
 
         .form-control:focus {
             border-color: #f59e0b !important;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25) !important;
         }
 
         .form-control::placeholder {
@@ -150,18 +156,24 @@
             border: none;
             color: #0f172a;
             font-weight: 800;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
             letter-spacing: 0.5px;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
         }
 
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+            box-shadow: 0 8px 22px rgba(245, 158, 11, 0.5);
             color: #000000;
+        }
+
+        .login-footer-text {
+            color: #94a3b8 !important;
+            font-size: 0.95rem;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -185,11 +197,8 @@
                 </defs>
                 <circle cx="50" cy="50" r="45" stroke="url(#goldGrad)" stroke-width="3" fill="none" />
                 <path d="M 15 50 A 35 35 0 1 1 85 50" stroke="url(#goldGrad)" stroke-width="3" stroke-dasharray="6 4" fill="none" />
-                <!-- Flecha de ciclo -->
                 <polygon points="85,42 92,52 80,52" fill="url(#goldGrad)" />
-                <!-- Iniciales JN Stylized -->
                 <text x="50%" y="42%" dominant-baseline="middle" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="28" fill="url(#goldGrad)">JN</text>
-                <!-- Mini QR icon abajo -->
                 <g transform="translate(38, 55) scale(0.24)" fill="url(#goldGrad)">
                     <rect x="0" y="0" width="30" height="30" />
                     <rect x="5" y="5" width="20" height="20" fill="#1a202c" />
@@ -247,8 +256,9 @@
             </button>
         </form>
 
-        <div class="border-top border-secondary pt-3 mt-2">
-            <small class="text-muted">¿Ya tienes una cuenta activada? <a href="#" class="text-warning text-decoration-none fw-bold">Inicia sesión aquí</a></small>
+        <div class="border-top border-secondary pt-3 mt-3 pb-2">
+            <span class="login-footer-text">¿Ya tienes una cuenta activada? </span>
+            <a href="#" class="text-warning text-decoration-none fw-bold ms-1">Inicia sesión aquí</a>
         </div>
     </div>
 
