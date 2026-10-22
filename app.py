@@ -1,31 +1,30 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.secret_key = 'tu_clave_secreta_super_segura'  # Reemplaza o mantén tu secret_key actual
+app.secret_key = 'tu_clave_secreta_super_segura'  # Mantén tu secret key actual
+
+# Configuración de tu base de datos (ajusta si usas otra ruta o URI)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db' # O tu configuración actual
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 # ==========================================
-# MODELO DE EJEMPLO (Ajusta según tu base de datos)
+# TUS MODELOS ORIGINALES (Asegúrate de conservar tus tablas)
 # ==========================================
-class Usuario:
-    def __init__(self, id, correo, password, nombre):
-        self.id = id
-        self.correo = correo
-        self.password = password
-        self.nombre = nombre
-
-# Simulación o conexión a tu base de datos existente
-# Asegúrate de mantener la consulta real que ya usas en tu proyecto
-def buscar_usuario(correo, password):
-    # Aquí va tu consulta: Usuario.query.filter_by(correo=correo, password=password).first()
-    pass
+class Usuario(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    correo = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
 
 # ==========================================
-# RUTAS PRINCIPALES
+# RUTAS DE LA APLICACIÓN
 # ==========================================
 
 @app.route('/')
-index = lambda: redirect(url_for('login'))
-app.add_url_rule('/', 'index', index)
+def index():
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -33,13 +32,13 @@ def login():
         correo = request.form.get('correo')
         password = request.form.get('password')
         
-        # Validación de usuario con tu lógica actual
-        user = Usuario.query.filter_by(correo=correo, password=password).first() if 'Usuario' in globals() else None
+        # Consulta original a tu base de datos
+        user = Usuario.query.filter_by(correo=correo, password=password).first()
         
         if user:
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
-            session['mostrar_aviso'] = True  # Activa la alerta de los $50 pesos al iniciar sesión
+            session['mostrar_aviso'] = True  # <-- Activa la alerta de los $50 pesos al iniciar sesión
             return redirect(url_for('panel'))
         else:
             return "Datos incorrectos, intenta de nuevo."
@@ -56,12 +55,7 @@ def panel():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    # Objeto de usuario para la plantilla
-    usuario = type('obj', (object,), {
-        'id': session.get('user_id'),
-        'nombre': session.get('nombre_negocio', 'Mi Negocio')
-    })
-    
+    usuario = Usuario.query.get(session['user_id'])
     return render_template('panel.html', usuario=usuario)
 
 @app.route('/logout')
