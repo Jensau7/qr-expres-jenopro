@@ -26,6 +26,7 @@ class Producto(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.Text, nullable=True)
+    imagen_url = db.Column(db.String(500), nullable=True) # <-- Nuevo campo para foto
     negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
 
 with app.app_context():
@@ -111,12 +112,14 @@ def agregar_producto(negocio_id):
     nombre = request.form.get('nombre')
     precio = request.form.get('precio')
     descripcion = request.form.get('descripcion')
+    imagen_url = request.form.get('imagen_url') # Capturar URL de imagen
 
     if nombre and precio:
         nuevo_prod = Producto(
             nombre=nombre,
             precio=float(precio),
             descripcion=descripcion,
+            imagen_url=imagen_url,
             negocio_id=negocio.id
         )
         db.session.add(nuevo_prod)
@@ -125,16 +128,15 @@ def agregar_producto(negocio_id):
 
     return redirect(url_for('panel', negocio_id=negocio.id))
 
-# --- MENÚ PÚBLICO (VISTA QR) ---
+# --- MENÚ PÚBLICO (VISTA QR CLIENTE) ---
 @app.route('/menu/<slug>')
 def ver_menu(slug):
     negocio = Negocio.query.filter_by(slug=slug).first_or_404()
     return render_template('menu.html', negocio=negocio)
 
-# --- ACTIVACIÓN DE PRUEBA Y PAGO ---
+# --- ACTIVACIÓN Y PAGO ---
 @app.route('/activar_directo/<int:negocio_id>')
 def activar_directo(negocio_id):
-    """Ruta de prueba rápida para activar la cuenta inmediatamente."""
     negocio = Negocio.query.get_or_404(negocio_id)
     negocio.estado = 'Active'
     db.session.commit()
@@ -171,16 +173,6 @@ def pago_exitoso(negocio_id):
     db.session.commit()
     flash('¡Pago acreditado con éxito! Tu cuenta ya está activa.', 'success')
     return redirect(url_for('panel', negocio_id=negocio.id))
-
-@app.route('/pago/fallido/<int:negocio_id>')
-def pago_fallido(negocio_id):
-    flash('El pago no se completó.', 'warning')
-    return redirect(url_for('panel', negocio_id=negocio_id))
-
-@app.route('/pago/pendiente/<int:negocio_id>')
-def pago_pendiente(negocio_id):
-    flash('Tu pago está pendiente.', 'info')
-    return redirect(url_for('panel', negocio_id=negocio_id))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
