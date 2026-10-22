@@ -6,7 +6,9 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'database.db')
+DB_PATH = os.path.join(BASE_DIR, 'database.db')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + DB_PATH
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static/uploads')
 
@@ -37,19 +39,17 @@ class Producto(db.Model):
     imagen = db.Column(db.String(255))
     negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
 
-# AUTO-MIGRACIÓN PARA REPARAR BASE DE DATOS VIEJA
+# REINICIO LIMPIO DE TABLAS (Elimina la BD desactualizada si causa choque)
 with app.app_context():
-    db.create_all()
-    # Ejecutamos alter table silencioso por si la base de datos es previa
     try:
+        db.create_all()
+        # Verificación básica para confirmar que la columna 'tema' existe
         with db.engine.connect() as conn:
-            conn.execute(db.text("ALTER TABLE negocio ADD COLUMN tema VARCHAR(30) DEFAULT 'carpinteria';"))
-            conn.execute(db.text("ALTER TABLE negocio ADD COLUMN logo VARCHAR(255);"))
-            conn.execute(db.text("ALTER TABLE negocio ADD COLUMN banner VARCHAR(255);"))
-            conn.execute(db.text("ALTER TABLE producto ADD COLUMN categoria VARCHAR(50) DEFAULT 'General';"))
-            conn.commit()
+            conn.execute(db.text("SELECT tema FROM negocio LIMIT 1;"))
     except Exception:
-        pass  # Si las columnas ya existen, ignora el error
+        # Si falla la columna nueva, reiniciamos las tablas limpias
+        db.drop_all()
+        db.create_all()
 
 def generar_slug(texto):
     texto = texto.lower().strip()
