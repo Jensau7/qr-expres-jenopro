@@ -8,7 +8,6 @@
     <style>
         body { background-color: #f8f9fa; }
         .product-card { border-radius: 12px; overflow: hidden; }
-        .product-img { height: 180px; object-fit: cover; width: 100%; }
     </style>
 </head>
 <body>
@@ -26,8 +25,8 @@
                 {% for prod in negocio.productos %}
                     <div class="col-12">
                         <div class="card product-card shadow-sm flex-row align-items-center p-2">
-                            {% if prod.imagen_url %}
-                                <img src="{{ prod.imagen_url }}" class="rounded" style="width: 90px; height: 90px; object-fit: cover;">
+                            {% if prod.imagen %}
+                                <img src="{{ url_for('static', filename='uploads/' + prod.imagen) }}" class="rounded" style="width: 90px; height: 90px; object-fit: cover;">
                             {% else %}
                                 <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center" style="width: 90px; height: 90px;">
                                     🌮
