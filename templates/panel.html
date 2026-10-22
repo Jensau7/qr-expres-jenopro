@@ -83,14 +83,14 @@
 
     <div class="container" style="max-width: 900px;">
 
-        <!-- HEADER Y ESTADO -->
+        <!-- HEADER PRINCIPAL DE ESTADO -->
         <div class="header-card mb-3">
             <h3 class="fw-bold mb-1">{{ usuario.nombre }}</h3>
             <p class="text-muted small mb-1">Teléfono: {{ usuario.telefono or '6141234567' }}</p>
             <div class="mb-3">
                 <span class="small text-muted me-1">Estado de la cuenta:</span>
                 {% if usuario.estado == 'Activo' %}
-                    <span class="badge-activa">Activa - Edición Habilitada</span>
+                    <span class="badge-activa">Activa</span>
                 {% else %}
                     <span class="badge-pendiente">Pendiente de Pago ($50 MXN)</span>
                 {% endif %}
@@ -98,11 +98,11 @@
             
             {% if usuario.estado == 'Activo' %}
                 <div class="alert alert-success py-2 mb-0 border-0 small">
-                    <i class="fa-solid fa-circle-check me-1"></i> Puedes agregar o eliminar productos libremente en esta sesión.
+                    <i class="fa-solid fa-circle-check me-1"></i> Sesión activa: Puedes agregar o eliminar productos.
                 </div>
             {% else %}
                 <div class="alert alert-danger py-2 mb-0 border-0 small">
-                    <i class="fa-solid fa-lock me-1"></i> Para realizar cambios o actualizaciones en tu menú se te cobrará una cuota de <strong>$50 MXN</strong>.
+                    <i class="fa-solid fa-lock me-1"></i> Para realizar cambios, modificaciones o eliminar productos de tu menú, se requiere realizar el pago de renovación de <strong>$50 MXN</strong>.
                     <div class="mt-2">
                         <a href="https://wa.me/526141234567?text=Hola,%20quiero%20pagar%20mi%20renovaci%C3%B3n%20de%20$50%20para%20modificar%20el%20men%C3%BA%20de%20{{ usuario.nombre }}" target="_blank" class="btn btn-sm btn-success fw-bold">
                             <i class="fa-brands fa-whatsapp me-1"></i> Pagar $50 MXN por WhatsApp para Desbloquear
@@ -112,23 +112,10 @@
             {% endif %}
         </div>
 
-        <!-- ALERTA PERSISTENTE -->
-        {% if session.get('mostrar_aviso') %}
-        <div class="alert alert-warning alert-dismissible fade show border-warning mb-4 shadow-sm" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fa-solid fa-triangle-exclamation fs-4 me-3 text-warning"></i>
-                <div>
-                    <h6 class="alert-heading fw-bold mb-1">Aviso Importante de Mantenimiento</h6>
-                    <p class="mb-0 small text-dark">Te recordamos que cada vez que ingreses nuevamente para realizar cambios o modificaciones en tu menú, se te cobrará una cuota de <strong>$50 pesos</strong> por la renovación.</p>
-                </div>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="fetch('/quitar_aviso')"></button>
-        </div>
-        {% endif %}
-
-        <!-- FORMULARIO Y LISTA -->
+        <!-- CONTENIDO PRINCIPAL -->
         <div class="row g-4">
             
+            <!-- FORMULARIO DE AGREGAR PRODUCTO -->
             <div class="col-12 col-md-5">
                 <div class="card-box">
                     <div class="card-header-dark">
@@ -171,6 +158,7 @@
                 </div>
             </div>
 
+            <!-- LISTA DE PRODUCTOS -->
             <div class="col-12 col-md-7">
                 <div class="card-box">
                     <div class="card-header-dark">
@@ -195,7 +183,7 @@
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="price-tag">${{ "%.2f"|format(p.precio) }}</span>
                                         {% if usuario.estado == 'Activo' %}
-                                            <a href="/eliminar_producto/{{ p.id }}" class="btn btn-sm text-danger p-0 ms-1" onclick="return confirm('¿Eliminar producto?');">
+                                            <a href="/eliminar_producto/{{ p.id }}" class="btn btn-sm text-danger p-0 ms-1" title="Eliminar producto" onclick="return confirm('¿Eliminar producto?');">
                                                 <i class="fa-solid fa-trash-can fs-5"></i>
                                             </a>
                                         {% endif %}
@@ -204,7 +192,7 @@
                                 {% endfor %}
                             </div>
                         {% else %}
-                            <p class="text-muted text-center py-4 mb-0 small">Aún no has agregado productos a tu galería.</p>
+                            <p class="text-muted text-center py-4 mb-0 small">Aún no has agregado productos a tu catálogo.</p>
                         {% endif %}
                     </div>
                 </div>
@@ -212,7 +200,7 @@
 
         </div>
 
-        <!-- ACCESOS AL MENÚ Y SALIR -->
+        <!-- ACCESOS AL MENÚ PÚBLICO Y BOTÓN DE CERRAR SESIÓN -->
         <div class="text-center mt-4 p-4 bg-white border rounded shadow-sm">
             <h5 class="fw-bold mb-2 text-dark">Tu Menú Público Sigue Activo</h5>
             <div class="d-flex flex-wrap justify-content-center gap-3 mt-3">
