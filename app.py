@@ -2,6 +2,7 @@ import os
 import re
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import inspect
 
 app = Flask(__name__)
 
@@ -16,7 +17,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 
-# MODELOS
+# MODELOS DE BASE DE DATOS
 class Negocio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
@@ -39,24 +40,24 @@ class Producto(db.Model):
     imagen = db.Column(db.String(255))
     negocio_id = db.Column(db.Integer, db.ForeignKey('negocio.id'), nullable=False)
 
-# REINICIO LIMPIO DE TABLAS (Elimina la BD desactualizada si causa choque)
+# INSPECTOR Y REINICIO SEGURO DE TABLAS
 with app.app_context():
-    try:
-        db.create_all()
-        # Verificación básica para confirmar que la columna 'tema' existe
-        with db.engine.connect() as conn:
-            conn.execute(db.text("SELECT tema FROM negocio LIMIT 1;"))
-    except Exception:
-        # Si falla la columna nueva, reiniciamos las tablas limpias
-        db.drop_all()
-        db.create_all()
+    inspector = inspect(db.engine)
+    tablas_existentes = inspector.get_table_names()
+    
+    if 'negocio' in tablas_existentes:
+        columnas = [col['name'] for col in inspector.get_columns('negocio')]
+        if 'tema' not in columnas:
+            db.drop_all()
+            
+    db.create_all()
 
 def generar_slug(texto):
     texto = texto.lower().strip()
     texto = re.sub(r'[^\w\s-]', '', texto)
     return re.sub(r'[\s_-]+', '-', texto)
 
-# RUTAS
+# RUTAS DE LA APLICACIÓN
 
 @app.route('/')
 def home():
