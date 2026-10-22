@@ -21,7 +21,7 @@ class Usuario(db.Model):
     telefono = db.Column(db.String(30), nullable=True)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    estado = db.Column(db.String(20), default='Pendiente') # Nace 'Pendiente' siempre
+    estado = db.Column(db.String(20), default='Pendiente')
     productos = db.relationship('Producto', backref='usuario', lazy=True, cascade='all, delete-orphan')
 
 class Producto(db.Model):
@@ -39,6 +39,25 @@ with app.app_context():
 def index():
     return redirect(url_for('login'))
 
+# RUTA PARA CREAR/ASEGURAR EL USUARIO FIJO DE PRUEBAS
+@app.route('/crear_usuario_fijo')
+def crear_usuario_fijo():
+    user = Usuario.query.filter_by(correo='contacto@ingenio.com').first()
+    if not user:
+        user = Usuario(
+            nombre='INGENIO EN MADERA',
+            telefono='526141234567',
+            correo='contacto@ingenio.com',
+            password='123456',
+            estado='Pendiente'
+        )
+        db.session.add(user)
+    else:
+        user.password = '123456'
+        user.estado = 'Pendiente'
+    db.session.commit()
+    return "Usuario fijo creado/actualizado con éxito: contacto@ingenio.com / 123456. Ya puedes iniciar sesión."
+
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
@@ -48,8 +67,12 @@ def registro():
         password = request.form.get('password')
 
         user = Usuario.query.filter_by(correo=correo).first()
-        if not user:
-            # Se crea la cuenta pero NACE BLOQUEADA ('Pendiente') requiriendo sus $50 MXN iniciales
+        if user:
+            # Si ya existe, actualiza contraseña y estado a pendiente
+            user.password = password
+            user.estado = 'Pendiente'
+            db.session.commit()
+        else:
             user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
             db.session.add(user)
             db.session.commit()
@@ -62,6 +85,7 @@ def registro():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    error = None
     if request.method == 'POST':
         correo = request.form.get('correo')
         password = request.form.get('password')
@@ -72,9 +96,9 @@ def login():
             session['nombre_negocio'] = user.nombre
             return redirect(url_for('panel'))
         else:
-            return "Datos incorrectos, intenta de nuevo."
+            error = "Correo o contraseña incorrectos. Intenta de nuevo."
             
-    return render_template('login.html')
+    return render_template('login.html', error=error)
 
 @app.route('/panel')
 def panel():
@@ -132,7 +156,6 @@ def eliminar_producto(id):
         db.session.commit()
     return redirect(url_for('panel'))
 
-# URL ADMIN PARA ACTIVAR SESIÓN TRAS RECIBIR CUALQUIER PAGO DE $50 MXN
 @app.route('/admin/cambiar_estado/<int:user_id>/<string:nuevo_estado>')
 def cambiar_estado(user_id, nuevo_estado):
     usuario = Usuario.query.get_or_404(user_id)
@@ -156,7 +179,7 @@ def logout():
     if 'user_id' in session:
         usuario = Usuario.query.get(session['user_id'])
         if usuario:
-            usuario.estado = 'Pendiente' # BLOQUEO AUTOMÁTICO AL SALIR
+            usuario.estado = 'Pendiente'
             db.session.commit()
     session.clear()
     return redirect(url_for('login'))
