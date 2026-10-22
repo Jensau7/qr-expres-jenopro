@@ -14,7 +14,6 @@
         .product-card:hover { transform: translateY(-2px); }
         .floating-cart { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; z-index: 1000; }
 
-        /* ESTILOS DE LOS 8 TEMAS */
         body.theme-carpinteria { background-color: #2b1d14; color: #f4e9dc; }
         .theme-carpinteria .product-card { background-color: #3d2b1f; border: 1px solid #5c402d; color: #f4e9dc; }
         .theme-carpinteria .badge-price { background-color: #d97706; color: #fff; }
@@ -58,7 +57,6 @@
 </head>
 <body class="theme-{{ negocio.tema or 'carpinteria' }}">
 
-    <!-- Encabezado / Banner Superior -->
     {% if negocio.banner %}
         <div class="banner-container">
             <img src="{{ url_for('static', filename='uploads/' + negocio.banner) }}" class="banner-img">
@@ -115,7 +113,6 @@
         {% endif %}
     </div>
 
-    <!-- Carrito Flotante -->
     <div id="cart-bar" class="floating-cart d-none">
         <button class="btn btn-cart btn-lg w-100 shadow-lg d-flex justify-content-between align-items-center fw-bold" onclick="enviarPedido()">
             <span>🛒 Enviar Pedido / Cotización (<span id="total-items">0</span>)</span>
