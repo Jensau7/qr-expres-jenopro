@@ -21,8 +21,7 @@ class Usuario(db.Model):
     telefono = db.Column(db.String(30), nullable=True)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    estado = db.Column(db.String(20), default='Activo') # 'Activo' o 'Pendiente'
-    primer_ingreso = db.Column(db.Boolean, default=True) # Registro inicial
+    estado = db.Column(db.String(20), default='Pendiente') # Nace 'Pendiente' siempre
     productos = db.relationship('Producto', backref='usuario', lazy=True, cascade='all, delete-orphan')
 
 class Producto(db.Model):
@@ -50,8 +49,8 @@ def registro():
 
         user = Usuario.query.filter_by(correo=correo).first()
         if not user:
-            # Al registrarse ya pagó sus primeros $50 MXN: entra 'Activo'
-            user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Activo', primer_ingreso=True)
+            # Se crea la cuenta pero NACE BLOQUEADA ('Pendiente') requiriendo sus $50 MXN iniciales
+            user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
             db.session.add(user)
             db.session.commit()
 
@@ -69,11 +68,6 @@ def login():
         
         user = Usuario.query.filter_by(correo=correo, password=password).first()
         if user:
-            # Si NO es su registro inicial, al iniciar sesión requiere nuevo pago de $50 MXN
-            if not user.primer_ingreso:
-                user.estado = 'Pendiente'
-                db.session.commit()
-
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
             return redirect(url_for('panel'))
@@ -98,7 +92,7 @@ def agregar_producto():
     
     usuario = Usuario.query.get(session['user_id'])
     if usuario.estado != 'Activo':
-        return "Se requiere pago de $50 MXN por actualización para agregar productos.", 403
+        return "Se requiere pago de $50 MXN para agregar productos y fotos.", 403
 
     nombre_prod = request.form.get('nombre_prod')
     precio = request.form.get('precio')
@@ -130,7 +124,7 @@ def eliminar_producto(id):
     
     usuario = Usuario.query.get(session['user_id'])
     if usuario.estado != 'Activo':
-        return "Se requiere pago de $50 MXN por actualización para eliminar productos.", 403
+        return "Se requiere pago de $50 MXN para eliminar productos.", 403
 
     producto = Producto.query.get_or_404(id)
     if producto.usuario_id == session['user_id']:
@@ -138,7 +132,7 @@ def eliminar_producto(id):
         db.session.commit()
     return redirect(url_for('panel'))
 
-# ACTIVACIÓN MANUAL POR ADMIN AL RECIBIR LOS $50 MXN
+# URL ADMIN PARA ACTIVAR SESIÓN TRAS RECIBIR CUALQUIER PAGO DE $50 MXN
 @app.route('/admin/cambiar_estado/<int:user_id>/<string:nuevo_estado>')
 def cambiar_estado(user_id, nuevo_estado):
     usuario = Usuario.query.get_or_404(user_id)
@@ -162,8 +156,7 @@ def logout():
     if 'user_id' in session:
         usuario = Usuario.query.get(session['user_id'])
         if usuario:
-            usuario.primer_ingreso = False # Concluye su primer ingreso
-            usuario.estado = 'Pendiente'   # Para que al volver a ingresar requiera $50 MXN
+            usuario.estado = 'Pendiente' # BLOQUEO AUTOMÁTICO AL SALIR
             db.session.commit()
     session.clear()
     return redirect(url_for('login'))
