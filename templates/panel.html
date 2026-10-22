@@ -35,17 +35,17 @@
 
         {% if negocio.estado == 'Active' %}
         <div class="row">
-            <!-- Formulario agregar producto -->
+            <!-- Formulario para agregar producto con selector de Galería -->
             <div class="col-md-5 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-dark text-white">
                         <h5 class="card-title mb-0">Agregar Nuevo Producto</h5>
                     </div>
                     <div class="card-body">
-                        <form action="/agregar_producto/{{ negocio.id }}" method="POST">
+                        <form action="/agregar_producto/{{ negocio.id }}" method="POST" enctype="multipart/form-data">
                             <div class="mb-3">
                                 <label class="form-label">Nombre del producto</label>
-                                <input type="text" name="nombre" class="form-control" placeholder="Ej. Tacochado" required>
+                                <input type="text" name="nombre" class="form-control" placeholder="Ej. Tacos a la plancha" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Precio ($ MXN)</label>
@@ -53,11 +53,11 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Descripción</label>
-                                <textarea name="descripcion" class="form-control" rows="2" placeholder="Taco estilo chihuahua carne asada con queso"></textarea>
+                                <textarea name="descripcion" class="form-control" rows="2" placeholder="Taco con carne asada estilo Chihuahua con queso y salchicha..."></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">URL de la Imagen (Opcional)</label>
-                                <input type="url" name="imagen_url" class="form-control" placeholder="https://ejemplo.com/taco.jpg">
+                                <label class="form-label">Foto del platillo (Galería / Cámara)</label>
+                                <input type="file" name="imagen" class="form-control" accept="image/*">
                             </div>
                             <button type="submit" class="btn btn-success w-100">Guardar Producto</button>
                         </form>
@@ -65,7 +65,7 @@
                 </div>
             </div>
 
-            <!-- Lista de productos cargados -->
+            <!-- Lista de productos -->
             <div class="col-md-7">
                 <div class="card shadow-sm">
                     <div class="card-header bg-dark text-white">
@@ -77,8 +77,12 @@
                                 {% for prod in negocio.productos %}
                                     <div class="list-group-item d-flex justify-content-between align-items-center">
                                         <div class="d-flex align-items-center">
-                                            {% if prod.imagen_url %}
-                                                <img src="{{ prod.imagen_url }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% if prod.imagen %}
+                                                <img src="{{ url_for('static', filename='uploads/' + prod.imagen) }}" class="rounded me-3" style="width: 55px; height: 55px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-light text-muted rounded me-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border: 1px solid #ddd;">
+                                                    🌮
+                                                </div>
                                             {% endif %}
                                             <div>
                                                 <h6 class="mb-1">{{ prod.nombre }}</h6>
