@@ -21,9 +21,6 @@
                 </p>
 
                 {% if negocio.estado != 'Active' %}
-                    <div class="alert alert-info">
-                        Tu cuenta requiere la activación de la licencia por $50 MXN para operar y generar códigos QR con normalidad.
-                    </div>
                     <form action="/pagar/{{ negocio.id }}" method="POST">
                         <button type="submit" class="btn btn-primary">Pagar Activación ($50 MXN)</button>
                     </form>
@@ -38,7 +35,7 @@
 
         {% if negocio.estado == 'Active' %}
         <div class="row">
-            <!-- Formulario de agregar producto -->
+            <!-- Formulario agregar producto -->
             <div class="col-md-5 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-dark text-white">
@@ -48,15 +45,19 @@
                         <form action="/agregar_producto/{{ negocio.id }}" method="POST">
                             <div class="mb-3">
                                 <label class="form-label">Nombre del producto</label>
-                                <input type="text" name="nombre" class="form-control" placeholder="Ej. Tacos al Pastor" required>
+                                <input type="text" name="nombre" class="form-control" placeholder="Ej. Tacochado" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Precio ($ MXN)</label>
-                                <input type="number" step="0.01" name="precio" class="form-control" placeholder="25.00" required>
+                                <input type="number" step="0.01" name="precio" class="form-control" placeholder="55.00" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Descripción</label>
-                                <textarea name="descripcion" class="form-control" rows="2" placeholder="Ej. Orden de 5 tacos con cilantro y cebolla"></textarea>
+                                <textarea name="descripcion" class="form-control" rows="2" placeholder="Taco estilo chihuahua carne asada con queso"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">URL de la Imagen (Opcional)</label>
+                                <input type="url" name="imagen_url" class="form-control" placeholder="https://ejemplo.com/taco.jpg">
                             </div>
                             <button type="submit" class="btn btn-success w-100">Guardar Producto</button>
                         </form>
@@ -64,7 +65,7 @@
                 </div>
             </div>
 
-            <!-- Lista de productos -->
+            <!-- Lista de productos cargados -->
             <div class="col-md-7">
                 <div class="card shadow-sm">
                     <div class="card-header bg-dark text-white">
@@ -75,9 +76,14 @@
                             <div class="list-group">
                                 {% for prod in negocio.productos %}
                                     <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="mb-1">{{ prod.nombre }}</h6>
-                                            <small class="text-muted">{{ prod.descripcion or 'Sin descripción' }}</small>
+                                        <div class="d-flex align-items-center">
+                                            {% if prod.imagen_url %}
+                                                <img src="{{ prod.imagen_url }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-1">{{ prod.nombre }}</h6>
+                                                <small class="text-muted">{{ prod.descripcion or 'Sin descripción' }}</small>
+                                            </div>
                                         </div>
                                         <span class="badge bg-primary rounded-pill">${{ "%.2f"|format(prod.precio) }}</span>
                                     </div>
