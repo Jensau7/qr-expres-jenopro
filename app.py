@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = 'tu_clave_secreta_super_segura'
+app.secret_key = 'clave_super_segura_jenopro'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -21,7 +21,7 @@ class Usuario(db.Model):
     telefono = db.Column(db.String(30), nullable=True)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    estado = db.Column(db.String(20), default='Pendiente')
+    estado = db.Column(db.String(20), default='Pendiente') # 'Pendiente' o 'Activo'
     productos = db.relationship('Producto', backref='usuario', lazy=True, cascade='all, delete-orphan')
 
 class Producto(db.Model):
@@ -39,26 +39,7 @@ with app.app_context():
 def index():
     return redirect(url_for('login'))
 
-@app.route('/bypass')
-def bypass():
-    user = Usuario.query.filter_by(correo='contacto@ingenio.com').first()
-    if not user:
-        user = Usuario(
-            nombre='INGENIO EN MADERA',
-            telefono='526141234567',
-            correo='contacto@ingenio.com',
-            password='123456',
-            estado='Activo'
-        )
-        db.session.add(user)
-        db.session.commit()
-    else:
-        user.estado = 'Activo'
-        db.session.commit()
-    session['user_id'] = user.id
-    session['nombre_negocio'] = user.nombre
-    return redirect(url_for('panel'))
-
+# PASO 1 Y PASO 4: LOGIN (Al entrar, requiere pago para editar)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -67,29 +48,23 @@ def login():
         password = request.form.get('password')
         try:
             user = Usuario.query.filter_by(correo=correo).first()
-            if not user:
-                user = Usuario(
-                    nombre='INGENIO EN MADERA',
-                    telefono='526141234567',
-                    correo=correo,
-                    password=password,
-                    estado='Pendiente'
-                )
-                db.session.add(user)
+            if user and user.password == password:
+                # REGLA CLAVE: Cada nueva sesión bloquea la edición hasta pagar renovación
+                user.estado = 'Pendiente'
                 db.session.commit()
-            
-            if user.password == password:
+                
                 session['user_id'] = user.id
                 session['nombre_negocio'] = user.nombre
                 return redirect(url_for('panel'))
             else:
-                error = "Contraseña incorrecta."
+                error = "Correo o contraseña incorrectos."
         except Exception:
             db.session.rollback()
-            error = "Error al conectar. Intenta de nuevo."
+            error = "Error de conexión."
             
     return render_template('login.html', error=error)
 
+# PASO 1: REGISTRO
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
@@ -100,6 +75,7 @@ def registro():
         try:
             user = Usuario.query.filter_by(correo=correo).first()
             if not user:
+                # Registro nuevo empieza como Pendiente
                 user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
                 db.session.add(user)
                 db.session.commit()
@@ -110,6 +86,17 @@ def registro():
             db.session.rollback()
     return render_template('registro.html')
 
+# SIMULADOR DE PAGO (Paso 2 y Paso 5)
+@app.route('/pagar_simulado')
+def pagar_simulado():
+    if 'user_id' in session:
+        user = Usuario.query.get(session['user_id'])
+        if user:
+            user.estado = 'Activo'
+            db.session.commit()
+    return redirect(url_for('panel'))
+
+# PASO 2, 3, 5 Y 6: PANEL DE CONTROL
 @app.route('/panel')
 def panel():
     if 'user_id' not in session:
@@ -121,13 +108,16 @@ def panel():
     productos = Producto.query.filter_by(usuario_id=usuario.id).all()
     return render_template('panel.html', usuario=usuario, productos=productos)
 
+# GUARDAR FOTO/PRODUCTO (Paso 3 y 6)
 @app.route('/agregar_producto', methods=['POST'])
 def agregar_producto():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     usuario = Usuario.query.get(session['user_id'])
+    
+    # Bloqueo estricto si no se ha pagado los $50 MXN
     if usuario.estado != 'Activo':
-        return "Se requiere pago de $50 MXN para agregar productos.", 403
+        return "Acceso denegado: Debes realizar el pago de $50 MXN para actualizar tu menú.", 403
 
     nombre_prod = request.form.get('nombre_prod')
     precio = request.form.get('precio')
@@ -157,8 +147,9 @@ def eliminar_producto(id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     usuario = Usuario.query.get(session['user_id'])
+    
     if usuario.estado != 'Activo':
-        return "Se requiere pago de $50 MXN para eliminar productos.", 403
+        return "Acceso denegado: Debes realizar el pago para modificar productos.", 403
 
     producto = Producto.query.get_or_404(id)
     if producto.usuario_id == session['user_id']:
@@ -179,11 +170,6 @@ def qr_mesas(user_id):
 
 @app.route('/logout')
 def logout():
-    if 'user_id' in session:
-        usuario = Usuario.query.get(session['user_id'])
-        if usuario:
-            usuario.estado = 'Pendiente'
-            db.session.commit()
     session.clear()
     return redirect(url_for('login'))
 
