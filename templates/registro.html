@@ -8,7 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #0b0f19;
+            background-color: #0d1117;
+            background-image: radial-gradient(circle at center, #1f293d 0%, #0d1117 100%);
             color: #f8f9fa;
             min-height: 100vh;
             display: flex;
@@ -18,109 +19,179 @@
             padding: 15px;
         }
         .card-registro {
-            background: #161b22;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 25px;
+            background: rgba(22, 27, 34, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 28px 22px;
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            max-width: 380px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
         }
-        .logo-circle {
-            width: 75px;
-            height: 75px;
-            margin: 0 auto 12px auto;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+        
+        /* Insignia Oficial */
+        .badge-oficial {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        /* Logo JN Dorado */
+        .logo-jn-container {
+            width: 95px;
+            height: 95px;
+            margin: 0 auto 10px auto;
             border-radius: 50%;
+            background: radial-gradient(circle, #2d261e 0%, #12100d 100%);
+            border: 3px solid #d97706;
+            box-shadow: 0 0 20px rgba(217, 119, 6, 0.4);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            position: relative;
         }
-        .form-label {
-            color: #cbd5e1 !important;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
+        .logo-jn-text {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #f59e0b;
+            letter-spacing: -1px;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
-        .form-control {
-            background-color: #0d1117 !important;
-            color: #ffffff !important;
-            border: 1px solid #30363d !important;
+        .logo-qr-icon {
             font-size: 0.9rem;
-            padding: 10px 12px;
+            color: #d97706;
+            margin-top: 2px;
         }
-        .form-control::placeholder {
-            color: #64748b !important;
-            opacity: 1;
-        }
-        .form-control:focus {
-            border-color: #f59e0b !important;
-            box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25);
-        }
-        .input-group-text {
-            background-color: #21262d !important;
-            color: #94a3b8 !important;
-            border: 1px solid #30363d !important;
-        }
-        .btn-orange {
-            background-color: #f59e0b;
-            color: #000000;
+
+        /* Formulario */
+        .form-label {
+            color: #f59e0b !important;
+            font-size: 0.7rem;
             font-weight: 800;
-            border: none;
-            padding: 12px;
-            transition: background 0.2s;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .btn-orange:hover {
-            background-color: #d97706;
+        .input-group-custom {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .input-icon {
+            padding: 10px 12px;
+            color: #6e7681;
+            font-size: 0.85rem;
+        }
+        .form-control-custom {
+            background: transparent !important;
+            border: none !important;
+            color: #ffffff !important;
+            font-size: 0.85rem;
+            padding: 10px 10px 10px 0;
+            width: 100%;
+            outline: none;
+        }
+        .form-control-custom::placeholder {
+            color: #484f58 !important;
+        }
+
+        /* Botón Naranja */
+        .btn-orange-jn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #000000;
+            font-weight: 900;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-orange-jn:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
+
     <div class="card-registro">
         <div class="text-center">
-            <div class="logo-circle">
-                <i class="fa-solid fa-qrcode text-dark fs-2"></i>
+            <!-- Insignia Verde -->
+            <div class="badge-oficial">
+                <i class="fa-solid fa-circle-check"></i> Plataforma Oficial
             </div>
-            <h4 class="fw-bold mb-1 text-white">JeNoPro QR</h4>
-            <p class="text-warning small mb-4 fw-semibold tracking-wide">REGISTRO DE NEGOCIO</p>
+
+            <!-- Logo JN con Círculo Dorado -->
+            <div class="logo-jn-container">
+                <span class="logo-jn-text">JN</span>
+                <i class="fa-solid fa-qrcode logo-qr-icon"></i>
+            </div>
+
+            <h4 class="fw-bold mb-0 text-white" style="letter-spacing: -0.5px;">JeNoPro QR</h4>
+            <p class="text-warning small fw-bold mb-4" style="font-size: 0.72rem; letter-spacing: 0.5px;">REGISTRO DE NEGOCIO - JeNoPro QR</p>
         </div>
 
         <form action="/registro" method="POST">
+            <div class="mb-1">
+                <label class="form-label"><i class="fa-solid fa-store"></i> NOMBRE DEL NEGOCIO</label>
+                <div class="input-group-custom">
+                    <span class="input-icon"><i class="fa-solid fa-building"></i></span>
+                    <input type="text" name="nombre" class="form-control-custom" placeholder="Tacos El Paisa" required>
+                </div>
+            </div>
+
+            <div class="mb-1">
+                <label class="form-label"><i class="fa-solid fa-phone"></i> WHATSAPP DEL NEGOCIO</label>
+                <div class="input-group-custom">
+                    <span class="input-icon"><i class="fa-solid fa-mobile-screen"></i></span>
+                    <input type="text" name="telefono" class="form-control-custom" placeholder="Ej. 520000010000">
+                </div>
+            </div>
+
+            <div class="mb-1">
+                <label class="form-label"><i class="fa-solid fa-envelope"></i> CORREO ELECTRÓNICO</label>
+                <div class="input-group-custom">
+                    <span class="input-icon"><i class="fa-solid fa-envelope"></i></span>
+                    <input type="email" name="correo" class="form-control-custom" placeholder="tucorreo@gmail.com" required>
+                </div>
+            </div>
+
             <div class="mb-3">
-                <label class="form-label fw-bold d-block">NOMBRE DEL NEGOCIO</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa-solid fa-store"></i></span>
-                    <input type="text" name="nombre" class="form-control" placeholder="Ej. Carpintería / Tacos" required>
+                <label class="form-label"><i class="fa-solid fa-lock"></i> CONTRASEÑA</label>
+                <div class="input-group-custom">
+                    <span class="input-icon"><i class="fa-solid fa-key"></i></span>
+                    <input type="password" name="password" class="form-control-custom" placeholder="********" required>
                 </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold d-block">WHATSAPP (CON LADA)</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-                    <input type="text" name="telefono" class="form-control" placeholder="Ej. 526141234567">
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold d-block">CORREO ELECTRÓNICO</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                    <input type="email" name="correo" class="form-control" placeholder="tucorreo@gmail.com" required>
-                </div>
-            </div>
-            <div class="mb-4">
-                <label class="form-label fw-bold d-block">CONTRASEÑA</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" name="password" class="form-control" placeholder="********" required>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-orange w-100 shadow-sm">REGISTRAR Y CREAR MI PANEL &rarr;</button>
+
+            <button type="submit" class="btn btn-orange-jn w-100 mt-2">
+                REGISTRAR Y CREAR MI PANEL &rarr;
+            </button>
         </form>
 
-        <div class="text-center mt-4 small">
-            <span class="text-muted">¿Ya tienes cuenta?</span> <a href="/login" class="text-warning text-decoration-none fw-bold ms-1">Inicia sesión</a>
+        <div class="text-center mt-3 small" style="font-size: 0.78rem;">
+            <span class="text-secondary">¿Ya tienes cuenta?</span> 
+            <a href="/login" class="text-warning text-decoration-none fw-bold ms-1">Inicia sesión aquí</a>
         </div>
     </div>
+
 </body>
 </html>
