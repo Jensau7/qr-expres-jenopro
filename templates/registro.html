@@ -8,8 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #0d1117;
-            background-image: radial-gradient(circle at center, #1f293d 0%, #0d1117 100%);
+            background-color: #0b0f19;
+            background-image: radial-gradient(circle at center, #1b2230 0%, #0b0f19 100%);
             color: #f8f9fa;
             min-height: 100vh;
             display: flex;
@@ -19,14 +19,13 @@
             padding: 15px;
         }
         .card-registro {
-            background: rgba(22, 27, 34, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: #121824;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             padding: 28px 22px;
             width: 100%;
             max-width: 380px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
         }
         
         /* Insignia Oficial */
@@ -36,46 +35,28 @@
             border: 1px solid rgba(74, 222, 128, 0.3);
             font-size: 0.68rem;
             font-weight: 700;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 20px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            margin-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 14px;
         }
 
-        /* Logo JN Dorado */
-        .logo-jn-container {
-            width: 95px;
-            height: 95px;
-            margin: 0 auto 10px auto;
-            border-radius: 50%;
-            background: radial-gradient(circle, #2d261e 0%, #12100d 100%);
-            border: 3px solid #d97706;
-            box-shadow: 0 0 20px rgba(217, 119, 6, 0.4);
+        /* Contenedor del Logo 3D */
+        .logo-3d-wrapper {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 8px auto;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
-        }
-        .logo-jn-text {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: #f59e0b;
-            letter-spacing: -1px;
-            line-height: 1;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-        .logo-qr-icon {
-            font-size: 0.9rem;
-            color: #d97706;
-            margin-top: 2px;
+            filter: drop-shadow(0px 8px 20px rgba(217, 119, 6, 0.45));
         }
 
         /* Formulario */
         .form-label {
-            color: #f59e0b !important;
+            color: #d97706 !important;
             font-size: 0.7rem;
             font-weight: 800;
             letter-spacing: 0.5px;
@@ -85,8 +66,8 @@
             gap: 6px;
         }
         .input-group-custom {
-            background-color: #161b22;
-            border: 1px solid #30363d;
+            background-color: #0d111a;
+            border: 1px solid #232d3f;
             border-radius: 8px;
             overflow: hidden;
             display: flex;
@@ -95,7 +76,7 @@
         }
         .input-icon {
             padding: 10px 12px;
-            color: #6e7681;
+            color: #5d6b82;
             font-size: 0.85rem;
         }
         .form-control-custom {
@@ -108,7 +89,7 @@
             outline: none;
         }
         .form-control-custom::placeholder {
-            color: #484f58 !important;
+            color: #3b475c !important;
         }
 
         /* Botón Naranja */
@@ -121,12 +102,11 @@
             border: none;
             border-radius: 8px;
             padding: 12px;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
             transition: all 0.2s ease;
         }
         .btn-orange-jn:hover {
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -134,15 +114,69 @@
 
     <div class="card-registro">
         <div class="text-center">
-            <!-- Insignia Verde -->
+            <!-- Insignia Oficial Verde -->
             <div class="badge-oficial">
                 <i class="fa-solid fa-circle-check"></i> Plataforma Oficial
             </div>
 
-            <!-- Logo JN con Círculo Dorado -->
-            <div class="logo-jn-container">
-                <span class="logo-jn-text">JN</span>
-                <i class="fa-solid fa-qrcode logo-qr-icon"></i>
+            <!-- LOGOTIPO VECTORIAL 3D DORADO EXACTO (JN + FLECHAS + QR) -->
+            <div class="logo-3d-wrapper">
+                <svg width="120" height="120" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- Degradados Metálicos Dorados -->
+                        <linearGradient id="goldOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFF0A0" />
+                            <stop offset="30%" stop-color="#D4AF37" />
+                            <stop offset="70%" stop-color="#AA771C" />
+                            <stop offset="100%" stop-color="#8B5A2B" />
+                        </linearGradient>
+
+                        <linearGradient id="goldInner" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#FFE57F" />
+                            <stop offset="50%" stop-color="#C59B27" />
+                            <stop offset="100%" stop-color="#6E420F" />
+                        </linearGradient>
+
+                        <radialGradient id="bgShadow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#1A140B" />
+                            <stop offset="100%" stop-color="#080604" />
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Fondo Circular Oscuro Interno -->
+                    <circle cx="100" cy="100" r="82" fill="url(#bgShadow)" stroke="url(#goldOuter)" stroke-width="2"/>
+
+                    <!-- Anillo Exterior Dorado 3D con Flecha de Recarga -->
+                    <path d="M 100 22 A 78 78 0 1 1 24 100" fill="none" stroke="url(#goldOuter)" stroke-width="12" stroke-linecap="round"/>
+                    <path d="M 100 22 A 78 78 0 0 1 176 100" fill="none" stroke="url(#goldInner)" stroke-width="12" stroke-linecap="round"/>
+                    
+                    <!-- Flecha Superior -->
+                    <polygon points="98,8 118,22 98,36" fill="url(#goldOuter)"/>
+
+                    <!-- Letras JN Metálicas Biseladas -->
+                    <text x="58" y="112" font-family="'Arial Black', sans-serif" font-weight="900" font-size="52" fill="url(#goldOuter)" letter-spacing="-2">J</text>
+                    <text x="96" y="112" font-family="'Arial Black', sans-serif" font-weight="900" font-size="52" fill="url(#goldInner)" letter-spacing="-2">N</text>
+
+                    <!-- Código QR Mini Integrado abajo -->
+                    <g transform="translate(81, 126)" fill="url(#goldOuter)">
+                        <rect x="0" y="0" width="12" height="12"/>
+                        <rect x="2" y="2" width="8" height="8" fill="#121824"/>
+                        <rect x="4" y="4" width="4" height="4"/>
+
+                        <rect x="26" y="0" width="12" height="12"/>
+                        <rect x="28" y="2" width="8" height="8" fill="#121824"/>
+                        <rect x="30" y="4" width="4" height="4"/>
+
+                        <rect x="0" y="26" width="12" height="12"/>
+                        <rect x="2" y="28" width="8" height="8" fill="#121824"/>
+                        <rect x="4" y="30" width="4" height="4"/>
+
+                        <rect x="16" y="16" width="6" height="6"/>
+                        <rect x="26" y="26" width="6" height="6"/>
+                        <rect x="16" y="32" width="6" height="6"/>
+                        <rect x="32" y="16" width="6" height="6"/>
+                    </g>
+                </svg>
             </div>
 
             <h4 class="fw-bold mb-0 text-white" style="letter-spacing: -0.5px;">JeNoPro QR</h4>
