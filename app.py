@@ -39,7 +39,7 @@ with app.app_context():
 def index():
     return redirect(url_for('login'))
 
-# PASO 1 Y PASO 4: LOGIN (Al entrar, requiere pago para editar)
+# LOGIN A PRUEBA DE FALLOS Y DE REINICIOS DE BASE DE DATOS
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -48,8 +48,20 @@ def login():
         password = request.form.get('password')
         try:
             user = Usuario.query.filter_by(correo=correo).first()
-            if user and user.password == password:
-                # REGLA CLAVE: Cada nueva sesión bloquea la edición hasta pagar renovación
+            if not user:
+                # Si se reinició la BD, crea al usuario al vuelo para que no se quede atorado
+                user = Usuario(
+                    nombre='INGENIO EN MADERA',
+                    telefono='526141234567',
+                    correo=correo,
+                    password=password,
+                    estado='Pendiente'
+                )
+                db.session.add(user)
+                db.session.commit()
+            
+            if user.password == password:
+                # REGLA CLAVE: Cada nueva sesión bloquea la edición hasta pagar la renovación de $50 MXN
                 user.estado = 'Pendiente'
                 db.session.commit()
                 
@@ -57,14 +69,13 @@ def login():
                 session['nombre_negocio'] = user.nombre
                 return redirect(url_for('panel'))
             else:
-                error = "Correo o contraseña incorrectos."
+                error = "Contraseña incorrecta."
         except Exception:
             db.session.rollback()
-            error = "Error de conexión."
+            error = "Error al conectar. Intenta de nuevo."
             
     return render_template('login.html', error=error)
 
-# PASO 1: REGISTRO
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
@@ -75,7 +86,6 @@ def registro():
         try:
             user = Usuario.query.filter_by(correo=correo).first()
             if not user:
-                # Registro nuevo empieza como Pendiente
                 user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
                 db.session.add(user)
                 db.session.commit()
@@ -86,7 +96,6 @@ def registro():
             db.session.rollback()
     return render_template('registro.html')
 
-# SIMULADOR DE PAGO (Paso 2 y Paso 5)
 @app.route('/pagar_simulado')
 def pagar_simulado():
     if 'user_id' in session:
@@ -96,7 +105,6 @@ def pagar_simulado():
             db.session.commit()
     return redirect(url_for('panel'))
 
-# PASO 2, 3, 5 Y 6: PANEL DE CONTROL
 @app.route('/panel')
 def panel():
     if 'user_id' not in session:
@@ -108,14 +116,12 @@ def panel():
     productos = Producto.query.filter_by(usuario_id=usuario.id).all()
     return render_template('panel.html', usuario=usuario, productos=productos)
 
-# GUARDAR FOTO/PRODUCTO (Paso 3 y 6)
 @app.route('/agregar_producto', methods=['POST'])
 def agregar_producto():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     usuario = Usuario.query.get(session['user_id'])
     
-    # Bloqueo estricto si no se ha pagado los $50 MXN
     if usuario.estado != 'Activo':
         return "Acceso denegado: Debes realizar el pago de $50 MXN para actualizar tu menú.", 403
 
