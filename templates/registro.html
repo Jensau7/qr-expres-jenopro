@@ -40,18 +40,18 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         /* Contenedor del Logo 3D */
         .logo-3d-wrapper {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 8px auto;
+            width: 125px;
+            height: 125px;
+            margin: 0 auto 6px auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0px 8px 20px rgba(217, 119, 6, 0.45));
+            filter: drop-shadow(0px 8px 25px rgba(234, 179, 8, 0.5));
         }
 
         /* Formulario */
@@ -92,6 +92,23 @@
             color: #3b475c !important;
         }
 
+        /* Select de LADA con triangulito */
+        .select-lada {
+            background-color: #161c28;
+            color: #fbbf24;
+            border: none;
+            border-right: 1px solid #232d3f;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 10px 8px;
+            outline: none;
+            cursor: pointer;
+        }
+        .select-lada option {
+            background-color: #121824;
+            color: #ffffff;
+        }
+
         /* Botón Naranja */
         .btn-orange-jn {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
@@ -119,55 +136,57 @@
                 <i class="fa-solid fa-circle-check"></i> Plataforma Oficial
             </div>
 
-            <!-- LOGOTIPO VECTORIAL 3D DORADO EXACTO (JN + FLECHAS + QR) -->
+            <!-- LOGOTIPO VECTORIAL DORADO METALICO 3D AJUSTADO -->
             <div class="logo-3d-wrapper">
-                <svg width="120" height="120" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="125" height="125" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <!-- Degradados Metálicos Dorados -->
-                        <linearGradient id="goldOuter" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#FFF0A0" />
-                            <stop offset="30%" stop-color="#D4AF37" />
-                            <stop offset="70%" stop-color="#AA771C" />
-                            <stop offset="100%" stop-color="#8B5A2B" />
+                        <!-- Degradados Dorado Biselado 3D -->
+                        <linearGradient id="goldBright" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFF8D0" />
+                            <stop offset="25%" stop-color="#F59E0B" />
+                            <stop offset="50%" stop-color="#D97706" />
+                            <stop offset="75%" stop-color="#78350F" />
+                            <stop offset="100%" stop-color="#FFF0A0" />
                         </linearGradient>
 
-                        <linearGradient id="goldInner" x1="0%" y1="100%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#FFE57F" />
-                            <stop offset="50%" stop-color="#C59B27" />
-                            <stop offset="100%" stop-color="#6E420F" />
+                        <linearGradient id="goldGold3D" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#78350F" />
+                            <stop offset="40%" stop-color="#FBBF24" />
+                            <stop offset="70%" stop-color="#F59E0B" />
+                            <stop offset="100%" stop-color="#451A03" />
                         </linearGradient>
 
-                        <radialGradient id="bgShadow" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#1A140B" />
-                            <stop offset="100%" stop-color="#080604" />
+                        <radialGradient id="innerBg" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#261a08" />
+                            <stop offset="85%" stop-color="#0d0a04" />
+                            <stop offset="100%" stop-color="#121824" />
                         </radialGradient>
                     </defs>
 
-                    <!-- Fondo Circular Oscuro Interno -->
-                    <circle cx="100" cy="100" r="82" fill="url(#bgShadow)" stroke="url(#goldOuter)" stroke-width="2"/>
+                    <!-- Anillo Exterior Dorado 3D Relieve -->
+                    <circle cx="100" cy="100" r="88" fill="url(#innerBg)" stroke="url(#goldBright)" stroke-width="10"/>
+                    <circle cx="100" cy="100" r="82" stroke="url(#goldGold3D)" stroke-width="3" fill="none"/>
 
-                    <!-- Anillo Exterior Dorado 3D con Flecha de Recarga -->
-                    <path d="M 100 22 A 78 78 0 1 1 24 100" fill="none" stroke="url(#goldOuter)" stroke-width="12" stroke-linecap="round"/>
-                    <path d="M 100 22 A 78 78 0 0 1 176 100" fill="none" stroke="url(#goldInner)" stroke-width="12" stroke-linecap="round"/>
-                    
-                    <!-- Flecha Superior -->
-                    <polygon points="98,8 118,22 98,36" fill="url(#goldOuter)"/>
+                    <!-- Flecha de Recarga Circular Superior/Inferior -->
+                    <path d="M 100 12 A 88 88 0 0 1 188 100" fill="none" stroke="url(#goldBright)" stroke-width="8" stroke-linecap="round"/>
+                    <polygon points="98,2 118,12 98,22" fill="url(#goldBright)"/>
+                    <polygon points="102,178 82,188 102,198" fill="url(#goldBright)"/>
 
-                    <!-- Letras JN Metálicas Biseladas -->
-                    <text x="58" y="112" font-family="'Arial Black', sans-serif" font-weight="900" font-size="52" fill="url(#goldOuter)" letter-spacing="-2">J</text>
-                    <text x="96" y="112" font-family="'Arial Black', sans-serif" font-weight="900" font-size="52" fill="url(#goldInner)" letter-spacing="-2">N</text>
+                    <!-- Letras JN Doradas Metalicas Grandes -->
+                    <text x="52" y="112" font-family="'Arial Black', sans-serif" font-weight="900" font-size="54" fill="url(#goldBright)" letter-spacing="-3">J</text>
+                    <text x="94" y="112" font-family="'Arial Black', sans-serif" font-weight="900" font-size="54" fill="url(#goldGold3D)" letter-spacing="-3">N</text>
 
-                    <!-- Código QR Mini Integrado abajo -->
-                    <g transform="translate(81, 126)" fill="url(#goldOuter)">
-                        <rect x="0" y="0" width="12" height="12"/>
+                    <!-- Icono QR Metálico Abajo -->
+                    <g transform="translate(81, 126)" fill="url(#goldBright)">
+                        <rect x="0" y="0" width="12" height="12" rx="1"/>
                         <rect x="2" y="2" width="8" height="8" fill="#121824"/>
                         <rect x="4" y="4" width="4" height="4"/>
 
-                        <rect x="26" y="0" width="12" height="12"/>
+                        <rect x="26" y="0" width="12" height="12" rx="1"/>
                         <rect x="28" y="2" width="8" height="8" fill="#121824"/>
                         <rect x="30" y="4" width="4" height="4"/>
 
-                        <rect x="0" y="26" width="12" height="12"/>
+                        <rect x="0" y="26" width="12" height="12" rx="1"/>
                         <rect x="2" y="28" width="8" height="8" fill="#121824"/>
                         <rect x="4" y="30" width="4" height="4"/>
 
@@ -196,7 +215,16 @@
                 <label class="form-label"><i class="fa-solid fa-phone"></i> WHATSAPP DEL NEGOCIO</label>
                 <div class="input-group-custom">
                     <span class="input-icon"><i class="fa-solid fa-mobile-screen"></i></span>
-                    <input type="text" name="telefono" class="form-control-custom" placeholder="Ej. 520000010000">
+                    <!-- Desplegable LADA Opcional con +52 por defecto -->
+                    <select name="lada" class="select-lada">
+                        <option value="+52" selected>+52 (MX) &#9660;</option>
+                        <option value="+1">+1 (US/CA)</option>
+                        <option value="+34">+34 (ES)</option>
+                        <option value="+54">+54 (AR)</option>
+                        <option value="+57">+57 (CO)</option>
+                        <option value="+502">+502 (GT)</option>
+                    </select>
+                    <input type="tel" name="telefono" class="form-control-custom ps-2" placeholder="Ej. 6141234567" required>
                 </div>
             </div>
 
