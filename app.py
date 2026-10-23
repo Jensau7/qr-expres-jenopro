@@ -63,10 +63,11 @@ def login():
                 session['nombre_negocio'] = user.nombre
                 return redirect(url_for('panel'))
             else:
-                error = "Correo o contraseña incorrectos."
+                error = "Contraseña incorrecta."
         except Exception:
             db.session.rollback()
-            error = "Error en el servidor. Intenta de nuevo."
+            error = "Error al conectar. Intenta de nuevo."
+            
     return render_template('login.html', error=error)
 
 @app.route('/registro', methods=['GET', 'POST'])
