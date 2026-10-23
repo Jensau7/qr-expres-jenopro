@@ -41,30 +41,33 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    error = None
     if request.method == 'POST':
         correo = request.form.get('correo')
         password = request.form.get('password')
-        
-        user = Usuario.query.filter_by(correo=correo).first()
-        
-        # Si no existe, lo creamos automáticamente para evitar bloqueos
-        if not user:
-            user = Usuario(
-                nombre='INGENIO EN MADERA',
-                telefono='526141234567',
-                correo=correo,
-                password=password,
-                estado='Pendiente'
-            )
-            db.session.add(user)
-            db.session.commit()
-        
-        if user.password == password:
-            session['user_id'] = user.id
-            session['nombre_negocio'] = user.nombre
-            return redirect(url_for('panel'))
+        try:
+            user = Usuario.query.filter_by(correo=correo).first()
+            if not user:
+                user = Usuario(
+                    nombre='INGENIO EN MADERA',
+                    telefono='526141234567',
+                    correo=correo,
+                    password=password,
+                    estado='Pendiente'
+                )
+                db.session.add(user)
+                db.session.commit()
             
-    return render_template('login.html')
+            if user.password == password:
+                session['user_id'] = user.id
+                session['nombre_negocio'] = user.nombre
+                return redirect(url_for('panel'))
+            else:
+                error = "Correo o contraseña incorrectos."
+        except Exception:
+            db.session.rollback()
+            error = "Error en el servidor. Intenta de nuevo."
+    return render_template('login.html', error=error)
 
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -73,25 +76,27 @@ def registro():
         telefono = request.form.get('telefono')
         correo = request.form.get('correo')
         password = request.form.get('password')
-
-        user = Usuario.query.filter_by(correo=correo).first()
-        if not user:
-            user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
-            db.session.add(user)
-            db.session.commit()
-
-        session['user_id'] = user.id
-        session['nombre_negocio'] = user.nombre
-        return redirect(url_for('panel'))
-
+        try:
+            user = Usuario.query.filter_by(correo=correo).first()
+            if not user:
+                user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
+                db.session.add(user)
+                db.session.commit()
+            session['user_id'] = user.id
+            session['nombre_negocio'] = user.nombre
+            return redirect(url_for('panel'))
+        except Exception:
+            db.session.rollback()
     return render_template('registro.html')
 
 @app.route('/panel')
 def panel():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
     usuario = Usuario.query.get(session['user_id'])
+    if not usuario:
+        session.clear()
+        return redirect(url_for('login'))
     productos = Producto.query.filter_by(usuario_id=usuario.id).all()
     return render_template('panel.html', usuario=usuario, productos=productos)
 
@@ -99,7 +104,6 @@ def panel():
 def agregar_producto():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
     usuario = Usuario.query.get(session['user_id'])
     if usuario.estado != 'Activo':
         return "Se requiere pago de $50 MXN para agregar productos.", 403
@@ -131,7 +135,6 @@ def agregar_producto():
 def eliminar_producto(id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
     usuario = Usuario.query.get(session['user_id'])
     if usuario.estado != 'Activo':
         return "Se requiere pago de $50 MXN para eliminar productos.", 403
