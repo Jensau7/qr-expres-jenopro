@@ -21,7 +21,7 @@ class Usuario(db.Model):
     telefono = db.Column(db.String(30), nullable=True)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    estado = db.Column(db.String(20), default='Pendiente') # 'Pendiente' o 'Activo'
+    estado = db.Column(db.String(20), default='Pendiente')
     productos = db.relationship('Producto', backref='usuario', lazy=True, cascade='all, delete-orphan')
 
 class Producto(db.Model):
@@ -39,7 +39,6 @@ with app.app_context():
 def index():
     return redirect(url_for('login'))
 
-# LOGIN A PRUEBA DE FALLOS Y DE REINICIOS DE BASE DE DATOS
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -49,7 +48,7 @@ def login():
         try:
             user = Usuario.query.filter_by(correo=correo).first()
             if not user:
-                # Si se reinició la BD, crea al usuario al vuelo para que no se quede atorado
+                # Si el usuario no existe en la BD, lo crea automáticamente
                 user = Usuario(
                     nombre='INGENIO EN MADERA',
                     telefono='526141234567',
@@ -60,19 +59,16 @@ def login():
                 db.session.add(user)
                 db.session.commit()
             
-            if user.password == password:
-                # REGLA CLAVE: Cada nueva sesión bloquea la edición hasta pagar la renovación de $50 MXN
-                user.estado = 'Pendiente'
-                db.session.commit()
-                
-                session['user_id'] = user.id
-                session['nombre_negocio'] = user.nombre
-                return redirect(url_for('panel'))
-            else:
-                error = "Contraseña incorrecta."
+            # Autenticación y reseteo a Pendiente para exigencia de pago recurrente
+            user.estado = 'Pendiente'
+            db.session.commit()
+            
+            session['user_id'] = user.id
+            session['nombre_negocio'] = user.nombre
+            return redirect(url_for('panel'))
         except Exception:
             db.session.rollback()
-            error = "Error al conectar. Intenta de nuevo."
+            error = "Error de conexión."
             
     return render_template('login.html', error=error)
 
@@ -121,9 +117,8 @@ def agregar_producto():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     usuario = Usuario.query.get(session['user_id'])
-    
     if usuario.estado != 'Activo':
-        return "Acceso denegado: Debes realizar el pago de $50 MXN para actualizar tu menú.", 403
+        return "Acceso denegado: Se requiere el pago de $50 MXN para actualizar.", 403
 
     nombre_prod = request.form.get('nombre_prod')
     precio = request.form.get('precio')
@@ -153,9 +148,8 @@ def eliminar_producto(id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     usuario = Usuario.query.get(session['user_id'])
-    
     if usuario.estado != 'Activo':
-        return "Acceso denegado: Debes realizar el pago para modificar productos.", 403
+        return "Acceso denegado.", 403
 
     producto = Producto.query.get_or_404(id)
     if producto.usuario_id == session['user_id']:
