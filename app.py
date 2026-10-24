@@ -1,4 +1,5 @@
 import os
+import traceback
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
@@ -6,7 +7,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = 'clave_super_segura_jenopro'
 
-# Configuración robusta de la base de datos para PostgreSQL en Render (con SSL obligatorio)
+# Configuración de base de datos con SSL
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
@@ -42,12 +43,17 @@ class Producto(db.Model):
     imagen = db.Column(db.String(200), nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
-# Creación segura de tablas al arrancar
 with app.app_context():
     try:
         db.create_all()
     except Exception as e:
         print(f"Error al inicializar la base de datos: {e}")
+
+# Capturador global de errores para mostrarlos en pantalla
+@app.errorhandler(Exception)
+def handle_exception(e):
+    tb = traceback.format_exc()
+    return f"<h2>Error Interno Detectado:</h2><pre>{tb}</pre>", 500
 
 @app.route('/')
 def index():
@@ -80,7 +86,7 @@ def login():
             return redirect(url_for('panel'))
         except Exception as e:
             db.session.rollback()
-            error = f"Error de conexión: {e}"
+            return f"<h2>Error en Login:</h2><pre>{traceback.format_exc()}</pre>", 500
 
     return render_template('login.html', error=error)
 
@@ -101,6 +107,7 @@ def registro():
             return redirect(url_for('panel'))
         except Exception as e:
             db.session.rollback()
+            return f"<h2>Error en Registro:</h2><pre>{traceback.format_exc()}</pre>", 500
     return render_template('registro.html')
 
 @app.route('/panel')
