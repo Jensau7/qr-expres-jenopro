@@ -38,9 +38,13 @@ class Producto(db.Model):
     imagen = db.Column(db.String(200), nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
-# Creación automática de tablas en el arranque
+# Creación segura de tablas en el arranque
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+        print("¡Tablas creadas o verificadas con éxito en la base de datos!")
+    except Exception as e:
+        print(f"Error al conectar o crear tablas en la BD: {e}")
 
 @app.route('/')
 def index():
