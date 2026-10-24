@@ -38,15 +38,9 @@ class Producto(db.Model):
     imagen = db.Column(db.String(200), nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
-# Crear tablas de forma segura en la primera petición para que el servidor levante en verde al instante
-@app.before_request
-def initialize_database():
-    if not getattr(app, '_db_created', False):
-        try:
-            db.create_all()
-            app._db_created = True
-        except Exception as e:
-            print(f"Error al crear tablas: {e}")
+# Creación oficial y directa de tablas al arrancar el servidor
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def index():
@@ -77,9 +71,9 @@ def login():
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
             return redirect(url_for('panel'))
-        except Exception:
+        except Exception as e:
             db.session.rollback()
-            error = "Error de conexión."
+            error = f"Error de conexión: {e}"
 
     return render_template('login.html', error=error)
 
