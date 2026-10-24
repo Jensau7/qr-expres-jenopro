@@ -38,17 +38,15 @@ class Producto(db.Model):
     imagen = db.Column(db.String(200), nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
-# Crear tablas justo antes de la primera petición para asegurar que el servidor levante en verde
-@app.before_first_request_if_supported
-def create_tables():
-    db.create_all()
-
-# Alternativa compatible con versiones modernas de Flask/SQLAlchemy para asegurar tablas al arrancar sin bloquear el hilo web principal
-with app.app_context():
-    try:
-        db.create_all()
-    except Exception:
-        pass
+# Crear tablas de forma segura en la primera petición para que el servidor levante en verde al instante
+@app.before_request
+def initialize_database():
+    if not getattr(app, '_db_created', False):
+        try:
+            db.create_all()
+            app._db_created = True
+        except Exception as e:
+            print(f"Error al crear tablas: {e}")
 
 @app.route('/')
 def index():
