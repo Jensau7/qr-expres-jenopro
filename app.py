@@ -49,12 +49,6 @@ with app.app_context():
     except Exception as e:
         print(f"Error al inicializar la base de datos: {e}")
 
-# Capturador global de errores para mostrarlos en pantalla
-@app.errorhandler(Exception)
-def handle_exception(e):
-    tb = traceback.format_exc()
-    return f"<h2>Error Interno Detectado:</h2><pre>{tb}</pre>", 500
-
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -104,6 +98,7 @@ def registro():
                 db.session.add(user)
                 db.session.commit()
             session['user_id'] = user.id
+            session['nombre_negocio'] = user.nombre
             return redirect(url_for('panel'))
         except Exception as e:
             db.session.rollback()
@@ -114,7 +109,9 @@ def registro():
 def panel():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('panel.html')
+    user = Usuario.query.get(session['user_id'])
+    productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
+    return render_template('panel.html', usuario=user, productos=productos)
 
 @app.route('/logout')
 def logout():
