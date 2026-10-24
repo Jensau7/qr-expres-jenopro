@@ -6,10 +6,14 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = 'clave_super_segura_jenopro'
 
-# Configuración limpia de la base de datos (PostgreSQL en Render o SQLite local)
+# Configuración robusta de la base de datos para PostgreSQL en Render (con SSL obligatorio)
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+if database_url and "postgresql://" in database_url and "sslmode" not in database_url:
+    separator = "&" if "?" in database_url else "?"
+    database_url = f"{database_url}{separator}sslmode=require"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -38,9 +42,12 @@ class Producto(db.Model):
     imagen = db.Column(db.String(200), nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
-# Creación oficial y directa de tablas al arrancar el servidor
+# Creación segura de tablas al arrancar
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception as e:
+        print(f"Error al inicializar la base de datos: {e}")
 
 @app.route('/')
 def index():
@@ -92,7 +99,7 @@ def registro():
                 db.session.commit()
             session['user_id'] = user.id
             return redirect(url_for('panel'))
-        except Exception:
+        except Exception as e:
             db.session.rollback()
     return render_template('registro.html')
 
