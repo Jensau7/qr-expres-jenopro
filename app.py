@@ -49,6 +49,11 @@ with app.app_context():
     except Exception as e:
         print(f"Error al inicializar la base de datos: {e}")
 
+@app.errorhandler(Exception)
+def handle_exception(e):
+    tb = traceback.format_exc()
+    return f"<h2>Error Interno Detectado:</h2><pre>{tb}</pre>", 500
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -59,9 +64,14 @@ def login():
     if request.method == 'POST':
         correo = request.form.get('correo')
         password = request.form.get('password')
+        
+        if not correo or not password:
+            return render_template('login.html', error="Por favor ingresa tu correo y contraseña.")
+        
         try:
             user = Usuario.query.filter_by(correo=correo).first()
             if not user:
+                # Si no existe, lo registramos automáticamente para facilitar tus pruebas
                 user = Usuario(
                     nombre='INGENIO EN MADERA',
                     telefono='326141234567',
@@ -72,9 +82,6 @@ def login():
                 db.session.add(user)
                 db.session.commit()
             
-            user.estado = 'Pendiente'
-            db.session.commit()
-
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
             return redirect(url_for('panel'))
@@ -91,6 +98,10 @@ def registro():
         telefono = request.form.get('telefono')
         correo = request.form.get('correo')
         password = request.form.get('password')
+        
+        if not correo or not password:
+            return render_template('registro.html', error="Todos los campos son obligatorios.")
+            
         try:
             user = Usuario.query.filter_by(correo=correo).first()
             if not user:
