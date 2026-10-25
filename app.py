@@ -32,7 +32,7 @@ class Usuario(db.Model):
     telefono = db.Column(db.String(30), nullable=False)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    estado = db.Column(db.String(20), default='Pendiente')
+    estado = db.Column(db.String(20), default='Activo')
     productos = db.relationship('Producto', backref='usuario', lazy=True, cascade='all, delete-orphan')
 
 class Producto(db.Model):
@@ -76,9 +76,12 @@ def login():
                     telefono='326141234567',
                     correo=correo,
                     password=password,
-                    estado='Pendiente'
+                    estado='Activo'
                 )
                 db.session.add(user)
+                db.session.commit()
+            else:
+                user.estado = 'Activo'
                 db.session.commit()
             
             session['user_id'] = user.id
@@ -104,9 +107,13 @@ def registro():
         try:
             user = Usuario.query.filter_by(correo=correo).first()
             if not user:
-                user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Pendiente')
+                user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Activo')
                 db.session.add(user)
                 db.session.commit()
+            else:
+                user.estado = 'Activo'
+                db.session.commit()
+
             session['user_id'] = user.id
             session['nombre_negocio'] = user.nombre
             return redirect(url_for('panel'))
@@ -115,17 +122,65 @@ def registro():
             return f"<h2>Error en Registro:</h2><pre>{traceback.format_exc()}</pre>", 500
     return render_template('registro.html')
 
-@app.route('/panel')
+@app.route('/panel', methods=['GET', 'POST'])
 def panel():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
     user = Usuario.query.get(session['user_id'])
+    if user:
+        user.estado = 'Activo'
+        db.session.commit()
+    
+    # Si mandan un producto nuevo desde el formulario del panel
+    if request.method == 'POST':
+        nombre_prod = request.form.get('nombre_prod')
+        precio = request.form.get('precio')
+        descripcion = request.form.get('descripcion')
+        
+        # Manejo de imagen si la suben
+        imagen_url = None
+        if 'imagen' in request.files:
+            file = request.files['imagen']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                imagen_url = url_for('static', filename=f'uploads/{filename}')
+
+        try:
+            nuevo_prod = Producto(
+                nombre_prod=nombre_prod,
+                precio=float(precio or 0),
+                descripcion=descripcion,
+                imagen=imagen_url,
+                usuario_id=user.id
+            )
+            db.session.add(nuevo_prod)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            
+        return redirect(url_for('panel'))
+
     productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
     return render_template('panel.html', usuario=user, productos=productos)
 
-# Rutas para simular el pago y activar la cuenta
+# Ruta para eliminar productos o fotos que no sirvan
+@app.route('/eliminar/<int:id>')
+def eliminar_producto(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    producto = Producto.query.get_or_404(id)
+    if producto.usuario_id == session['user_id']:
+        db.session.delete(producto)
+        db.session.commit()
+        
+    return redirect(url_for('panel'))
+
 @app.route('/pago')
 @app.route('/simular-pago')
+@app.route('/simular_pago')
 def pago():
     if 'user_id' not in session:
         return redirect(url_for('login'))
