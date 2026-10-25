@@ -49,6 +49,11 @@ with app.app_context():
     except Exception as e:
         print(f"Error al inicializar la base de datos: {e}")
 
+# Manejador amigable para errores 404 (evita pantallas feas de no encontrado)
+@app.errorhandler(404)
+def page_not_found(e):
+    return redirect(url_for('panel'))
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     tb = traceback.format_exc()
@@ -163,7 +168,7 @@ def panel():
     productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
     return render_template('panel.html', usuario=user, productos=productos)
 
-# Rutas de eliminación para asegurar que cualquier botón borre correctamente
+# Rutas múltiples para eliminar cualquier producto sin error 404
 @app.route('/eliminar/<int:id>')
 @app.route('/borrar/<int:id>')
 @app.route('/eliminar_producto/<int:id>')
@@ -171,8 +176,8 @@ def eliminar_producto(id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    producto = Producto.query.get_or_404(id)
-    if producto.usuario_id == session['user_id']:
+    producto = Producto.query.get(id)
+    if producto and producto.usuario_id == session['user_id']:
         db.session.delete(producto)
         db.session.commit()
         
