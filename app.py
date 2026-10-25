@@ -62,8 +62,9 @@ def index():
 def login():
     error = None
     if request.method == 'POST':
-        correo = request.form.get('correo')
-        password = request.form.get('password')
+        # Lee tanto si el input se llama 'correo' o 'email', y 'password' o 'contrasena'
+        correo = request.form.get('correo') or request.form.get('email')
+        password = request.form.get('password') or request.form.get('contrasena')
         
         if not correo or not password:
             return render_template('login.html', error="Por favor ingresa tu correo y contraseña.")
@@ -71,7 +72,6 @@ def login():
         try:
             user = Usuario.query.filter_by(correo=correo).first()
             if not user:
-                # Si no existe, lo registramos automáticamente para facilitar tus pruebas
                 user = Usuario(
                     nombre='INGENIO EN MADERA',
                     telefono='326141234567',
@@ -96,8 +96,8 @@ def registro():
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         telefono = request.form.get('telefono')
-        correo = request.form.get('correo')
-        password = request.form.get('password')
+        correo = request.form.get('correo') or request.form.get('email')
+        password = request.form.get('password') or request.form.get('contrasena')
         
         if not correo or not password:
             return render_template('registro.html', error="Todos los campos son obligatorios.")
