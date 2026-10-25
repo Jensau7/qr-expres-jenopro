@@ -33,6 +33,7 @@ class Usuario(db.Model):
     correo = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     estado = db.Column(db.String(20), default='Activo')
+    plantilla = db.Column(db.String(50), default='carpinteria')
     productos = db.relationship('Producto', backref='usuario', lazy=True, cascade='all, delete-orphan')
 
 class Producto(db.Model):
@@ -80,7 +81,8 @@ def login():
                     telefono='326141234567',
                     correo=correo,
                     password=password,
-                    estado='Activo'
+                    estado='Activo',
+                    plantilla='carpinteria'
                 )
                 db.session.add(user)
                 db.session.commit()
@@ -111,7 +113,7 @@ def registro():
         try:
             user = Usuario.query.filter_by(correo=correo).first()
             if not user:
-                user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Activo')
+                user = Usuario(nombre=nombre, telefono=telefono, correo=correo, password=password, estado='Activo', plantilla='carpinteria')
                 db.session.add(user)
                 db.session.commit()
             else:
@@ -166,6 +168,26 @@ def panel():
 
     productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
     return render_template('panel.html', usuario=user, productos=productos)
+
+@app.route('/cambiar_plantilla', methods=['POST'])
+def cambiar_plantilla():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = Usuario.query.get(session['user_id'])
+    if user:
+        user.plantilla = request.form.get('plantilla', 'carpinteria')
+        db.session.commit()
+    return redirect(url_for('panel'))
+
+@app.route('/menu')
+def menu_publico():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = Usuario.query.get(session['user_id'])
+    productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
+    
+    plantilla_elegida = user.plantilla if user and user.plantilla else 'carpinteria'
+    return render_template(f'menu_{plantilla_elegida}.html', usuario=user, productos=productos)
 
 @app.route('/eliminar/<int:id>')
 @app.route('/borrar/<int:id>')
