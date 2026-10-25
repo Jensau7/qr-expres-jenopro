@@ -1,6 +1,6 @@
 import os
 import traceback
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from werkzeug.utils import secure_filename
@@ -48,7 +48,6 @@ class Producto(db.Model):
 with app.app_context():
     try:
         db.create_all()
-        # Asegurar que la columna plantilla exista en bases de datos existentes
         with db.engine.connect() as conn:
             conn.execute(text("ALTER TABLE usuario ADD COLUMN IF NOT EXISTS plantilla VARCHAR(50) DEFAULT 'carpinteria';"))
             conn.commit()
@@ -184,15 +183,80 @@ def cambiar_plantilla():
         db.session.commit()
     return redirect(url_for('panel'))
 
+# Plantilla HTML incrustada directamente para evitar errores de archivos faltantes
+HTML_MENU_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo | {{ usuario.nombre }}</title>
+    <style>
+        body { background: {% if usuario.plantilla == 'restaurante' %}#fff3ec{% elif usuario.plantilla == 'minimalista' %}#f8f9fa{% else %}#1a120b{% endif %}; 
+               color: {% if usuario.plantilla == 'carpinteria' %}#f4f1ea{% else %}#333{% endif %}; 
+               font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .header { background: {% if usuario.plantilla == 'restaurante' %}#e76f51{% elif usuario.plantilla == 'minimalista' %}#212529{% else %}linear-gradient(135deg, #2c1d11, #4a2e18){% endif %}; 
+                  color: white; text-align: center; padding: 30px 20px; }
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+        .card { background: {% if usuario.plantilla == 'carpinteria' %}#281d13{% else %}white{% endif %}; 
+                border: 1px solid {% if usuario.plantilla == 'carpinteria' %}#5c3d24{% else %}#ddd{% endif %}; 
+                border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .card img { width: 100%; height: 180px; object-fit: cover; }
+        .card-body { padding: 15px; display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
+        .price { font-size: 18px; font-weight: bold; color: {% if usuario.plantilla == 'carpinteria' %}#dda15e{% elif usuario.plantilla == 'restaurante' %}#e76f51{% else %}#0d6efd{% endif %}; }
+        .btn { background: #25d366; color: white; padding: 8px 12px; border-radius: 5px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block; text-align: center; }
+        .volver { text-align: center; margin: 30px 0; }
+        .volver a { background: #6c757d; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ usuario.nombre }}</h1>
+        <p>WhatsApp: {{ usuario.telefono }} | Estilo: {{ usuario.plantilla | capitalize }}</p>
+    </div>
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 25px;">Catálogo de Productos y Servicios</h2>
+        {% if productos %}
+            <div class="grid">
+                {% for p in productos %}
+                    <div class="card">
+                        {% if p.imagen %}
+                            <img src="{{ p.imagen }}" alt="{{ p.nombre_prod }}">
+                        {% else %}
+                            <div style="width: 100%; height: 180px; background: #444; display: flex; align-items: center; justify-content: center; color: #aaa;">Sin Imagen</div>
+                        {% endif %}
+                        <div class="card-body">
+                            <div>
+                                <h3 style="margin: 0 0 5px;">{{ p.nombre_prod }}</h3>
+                                <p style="font-size: 13px; color: {% if usuario.plantilla == 'carpinteria' %}#c8b6a6{% else %}#666{% endif %};">{{ p.descripcion or 'Sin descripción' }}</p>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 10px;">
+                                <span class="price">${{ "%.2f"|format(p.precio) }} MXN</span>
+                                <a href="https://wa.me/{{ usuario.telefono }}?text=Me%20interesa%20el%20producto:%20{{ p.nombre_prod }}" target="_blank" class="btn">Pedir por WhatsApp</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="text-align: center; color: #888;">No hay productos registrados en este catálogo.</p>
+        {% endif %}
+        <div class="volver">
+            <a href="/panel">⬅️ Volver al Panel de Administración</a>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
 @app.route('/menu')
 def menu_publico():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     user = Usuario.query.get(session['user_id'])
     productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
-    
-    plantilla_elegida = user.plantilla if user and user.plantilla else 'carpinteria'
-    return render_template(f'menu_{plantilla_elegida}.html', usuario=user, productos=productos)
+    return render_template_string(HTML_MENU_TEMPLATE, usuario=user, productos=productos)
 
 @app.route('/eliminar/<int:id>')
 @app.route('/borrar/<int:id>')
