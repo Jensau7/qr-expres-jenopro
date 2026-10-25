@@ -3,101 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel - {{ usuario.nombre }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Panel - INGENIO EN MADERA</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h2, h3 { color: #ffb703; }
+        input, textarea, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #fff; box-sizing: border-box; }
+        button { background: #ffb703; color: #000; font-weight: bold; border: none; cursor: pointer; }
+        button:hover { background: #fb8500; }
+        .producto-item { display: flex; align-items: center; justify-content: space-between; background: #2a2a2a; padding: 10px; margin-top: 10px; border-radius: 5px; }
+        .producto-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 10px; }
+        .btn-eliminar { color: #ff4d4d; text-decoration: none; font-weight: bold; padding: 5px 10px; background: #3a1a1a; border-radius: 4px; }
+        .acciones { margin-top: 20px; display: flex; gap: 10px; }
+        .acciones a { flex: 1; text-align: center; padding: 10px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .btn-menu { background: #219ebc; color: #fff; }
+        .btn-salir { background: #d90429; color: #fff; }
+    </style>
 </head>
-<body class="bg-light py-4">
-    <div class="container" style="max-width: 900px;">
-        
-        <div class="bg-white p-4 rounded shadow-sm mb-4 text-center border">
-            <h3 class="fw-bold mb-1">{{ usuario.nombre }}</h3>
-            <p class="text-muted small mb-3">WhatsApp: {{ usuario.telefono or 'No registrado' }}</p>
-            
-            {% if usuario.estado == 'Activo' %}
-                <div class="alert alert-success d-inline-block py-2 px-4 mb-0 fw-bold">
-                    <i class="fa-solid fa-circle-check me-1"></i> Edición Habilitada: Puedes subir o eliminar productos de tu menú.
-                </div>
-            {% else %}
-                <div class="alert alert-warning border-warning p-3 mb-0">
-                    <h5 class="fw-bold text-dark mb-2"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> PAGO REQUERIDO PARA ACTUALIZAR</h5>
-                    <p class="small text-dark mb-3">Para poder agregar productos, actualizar fotos o modificar tu catálogo, se requiere realizar el pago de renovación ($50 MXN).</p>
-                    <a href="/pagar_simulado" class="btn btn-primary fw-bold px-4 py-2" style="background-color: #009ee3; border:none;">
-                        <i class="fa-solid fa-credit-card me-1"></i> Pagar $50 MXN (Simular Pago Mercado Pago)
-                    </a>
-                </div>
-            {% endif %}
-        </div>
+<body>
+    <div class="container">
+        <h2>{{ usuario.nombre }}</h2>
+        <p>WhatsApp: {{ usuario.telefono }} | Estado: <span style="color: #4bb543; font-weight: bold;">{{ usuario.estado }}</span></p>
 
-        <div class="row g-4">
-            <div class="col-12 col-md-5">
-                <div class="card bg-white border shadow-sm">
-                    <div class="card-header bg-dark text-white fw-bold">
-                        <i class="fa-solid fa-plus me-1"></i> Agregar Producto
-                    </div>
-                    <div class="card-body">
-                        <form action="/agregar_producto" method="POST" enctype="multipart/form-data">
-                            <div class="mb-3">
-                                <label class="small text-secondary fw-bold">Nombre del producto</label>
-                                <input type="text" name="nombre_prod" class="form-control form-control-sm" placeholder="Ej. Mesa de Centro" {% if usuario.estado != 'Activo' %}disabled{% endif %} required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="small text-secondary fw-bold">Precio ($ MXN)</label>
-                                <input type="number" step="any" name="precio" class="form-control form-control-sm" placeholder="0.00" {% if usuario.estado != 'Activo' %}disabled{% endif %} required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="small text-secondary fw-bold">Descripción</label>
-                                <textarea name="descripcion" class="form-control form-control-sm" rows="2" placeholder="Detalles..." {% if usuario.estado != 'Activo' %}disabled{% endif %}></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="small text-secondary fw-bold">Foto (Galería / Cámara)</label>
-                                <input type="file" name="imagen" class="form-control form-control-sm" accept="image/*" {% if usuario.estado != 'Activo' %}disabled{% endif %}>
-                            </div>
+        <hr style="border-color: #444;">
 
-                            {% if usuario.estado == 'Activo' %}
-                                <button type="submit" class="btn btn-success w-100 fw-bold"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Producto</button>
-                            {% else %}
-                                <button type="button" class="btn btn-secondary w-100 fw-bold" disabled>
-                                    <i class="fa-solid fa-lock me-1"></i> Bloqueado (Realiza tu pago)
-                                </button>
-                            {% endif %}
-                        </form>
-                    </div>
-                </div>
-            </div>
+        <h3>+ Agregar Producto</h3>
+        <form action="/panel" method="POST" enctype="multipart/form-data">
+            <input type="text" name="nombre_prod" placeholder="Nombre del producto (Ej. Mesa de Centro)" required>
+            <input type="number" step="0.01" name="precio" placeholder="Precio ($ MXN)" required>
+            <textarea name="descripcion" placeholder="Detalles de la madera, medidas..."></textarea>
+            <input type="file" name="imagen" accept="image/*">
+            <button type="submit">Guardar Producto</button>
+        </form>
 
-            <div class="col-12 col-md-7">
-                <div class="card bg-white border shadow-sm">
-                    <div class="card-header bg-dark text-white fw-bold">
-                        <i class="fa-solid fa-list me-1"></i> Mis Productos
-                    </div>
-                    <div class="card-body p-2">
-                        {% if productos %}
-                            <ul class="list-group list-group-flush">
-                                {% for p in productos %}
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="fw-bold mb-0">{{ p.nombre_prod }}</h6>
-                                        <small class="text-muted">${{ "%.2f"|format(p.precio) }} - {{ p.descripcion or 'Sin descripción' }}</small>
-                                    </div>
-                                    {% if usuario.estado == 'Activo' %}
-                                        <a href="/eliminar_producto/{{ p.id }}" class="text-danger" onclick="return confirm('¿Eliminar producto?');"><i class="fa-solid fa-trash"></i></a>
-                                    {% endif %}
-                                </li>
-                                {% endfor %}
-                            </ul>
+        <hr style="border-color: #444;">
+
+        <h3>📋 Mis Productos / Galería</h3>
+        {% if productos %}
+            {% for p in productos %}
+                <div class="producto-item">
+                    <div style="display: flex; align-items: center;">
+                        {% if p.imagen %}
+                            <img src="{{ p.imagen }}" alt="{{ p.nombre_prod }}">
                         {% else %}
-                            <p class="text-muted text-center py-4 small mb-0">No hay productos en tu catálogo.</p>
+                            <div style="width: 50px; height: 50px; background: #444; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-right: 10px; font-size: 10px;">Sin foto</div>
                         {% endif %}
+                        <div>
+                            <strong>{{ p.nombre_prod }}</strong><br>
+                            <span style="color: #ffb703;">${{ p.precio }} MXN</span><br>
+                            <small style="color: #aaa;">{{ p.descripcion }}</small>
+                        </div>
                     </div>
+                    <a href="/eliminar/{{ p.id }}" class="btn-eliminar">Eliminar</a>
                 </div>
-            </div>
-        </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: #888;">No hay productos en tu catálogo.</p>
+        {% endif %}
 
-        <div class="text-center mt-4 p-3 bg-white border rounded shadow-sm">
-            <a href="/menu/{{ usuario.id }}" target="_blank" class="btn btn-outline-primary btn-sm fw-bold me-2"><i class="fa-solid fa-eye me-1"></i> Ver Menú Público</a>
-            <a href="/qr/{{ usuario.id }}" target="_blank" class="btn btn-dark btn-sm fw-bold me-2"><i class="fa-solid fa-qrcode me-1"></i> Descargar QR</a>
-            <a href="/logout" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-right-from-bracket me-1"></i> Salir</a>
+        <div class="acciones">
+            <a href="/panel" class="btn-menu">Actualizar Galería</a>
+            <a href="/logout" class="btn-salir">Salir</a>
         </div>
     </div>
 </body>
