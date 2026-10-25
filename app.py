@@ -132,13 +132,11 @@ def panel():
         user.estado = 'Activo'
         db.session.commit()
     
-    # Si mandan un producto nuevo desde el formulario del panel
     if request.method == 'POST':
         nombre_prod = request.form.get('nombre_prod')
         precio = request.form.get('precio')
         descripcion = request.form.get('descripcion')
         
-        # Manejo de imagen si la suben
         imagen_url = None
         if 'imagen' in request.files:
             file = request.files['imagen']
@@ -165,8 +163,10 @@ def panel():
     productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
     return render_template('panel.html', usuario=user, productos=productos)
 
-# Ruta para eliminar productos o fotos que no sirvan
+# Rutas de eliminación para asegurar que cualquier botón borre correctamente
 @app.route('/eliminar/<int:id>')
+@app.route('/borrar/<int:id>')
+@app.route('/eliminar_producto/<int:id>')
 def eliminar_producto(id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
