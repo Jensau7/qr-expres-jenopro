@@ -62,7 +62,6 @@ def index():
 def login():
     error = None
     if request.method == 'POST':
-        # Lee tanto si el input se llama 'correo' o 'email', y 'password' o 'contrasena'
         correo = request.form.get('correo') or request.form.get('email')
         password = request.form.get('password') or request.form.get('contrasena')
         
@@ -123,6 +122,18 @@ def panel():
     user = Usuario.query.get(session['user_id'])
     productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
     return render_template('panel.html', usuario=user, productos=productos)
+
+# Rutas para simular el pago y activar la cuenta
+@app.route('/pago')
+@app.route('/simular-pago')
+def pago():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = Usuario.query.get(session['user_id'])
+    if user:
+        user.estado = 'Activo'
+        db.session.commit()
+    return redirect(url_for('panel'))
 
 @app.route('/logout')
 def logout():
