@@ -49,7 +49,6 @@ with app.app_context():
     except Exception as e:
         print(f"Error al inicializar la base de datos: {e}")
 
-# Manejador amigable para errores 404 (evita pantallas feas de no encontrado)
 @app.errorhandler(404)
 def page_not_found(e):
     return redirect(url_for('panel'))
@@ -168,7 +167,6 @@ def panel():
     productos = Producto.query.filter_by(usuario_id=user.id).all() if user else []
     return render_template('panel.html', usuario=user, productos=productos)
 
-# Rutas múltiples para eliminar cualquier producto sin error 404
 @app.route('/eliminar/<int:id>')
 @app.route('/borrar/<int:id>')
 @app.route('/eliminar_producto/<int:id>')
