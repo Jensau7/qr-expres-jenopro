@@ -2,6 +2,7 @@ import os
 import traceback
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -47,6 +48,10 @@ class Producto(db.Model):
 with app.app_context():
     try:
         db.create_all()
+        # Asegurar que la columna plantilla exista en bases de datos existentes
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE usuario ADD COLUMN IF NOT EXISTS plantilla VARCHAR(50) DEFAULT 'carpinteria';"))
+            conn.commit()
     except Exception as e:
         print(f"Error al inicializar la base de datos: {e}")
 
