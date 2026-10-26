@@ -7,43 +7,27 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #121212; color: #fff; margin: 0; padding: 20px; }
         .container { max-width: 650px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.6); border: 1px solid #333; }
-        h2, h3 { color: #ff5722; }
-        input, textarea, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; box-sizing: border-box; font-size: 14px; }
-        button { background: #ff5722; color: #fff; font-weight: bold; border: none; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #e64a19; }
+        h2, h3 { color: #ffb703; } /* Cambiado a amarillo */
+        input, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; box-sizing: border-box; font-size: 14px; }
+        button { background: #ffb703; color: #000; font-weight: bold; border: none; cursor: pointer; transition: background 0.2s; } /* Botón amarillo con texto negro para buen contraste */
+        button:hover { background: #fb8500; }
         
         .producto-item { display: flex; align-items: center; justify-content: space-between; background: #252525; padding: 12px; margin-top: 12px; border-radius: 10px; border: 1px solid #333; }
         .producto-item img { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; margin-right: 12px; background: #1a1a1a; }
-        .btn-eliminar { color: #ff5252; text-decoration: none; font-weight: bold; padding: 6px 12px; background: #2d1515; border-radius: 6px; font-size: 12px; border: 1px solid #552222; }
+        .btn-eliminar { color: #ffb703; text-decoration: none; font-weight: bold; padding: 6px 12px; background: #3a2e00; border-radius: 6px; font-size: 12px; border: 1px solid #665200; } /* Cambiado a amarillo y fondo acorde */
         
         .acciones { margin-top: 25px; display: flex; gap: 10px; }
         .acciones a { flex: 1; text-align: center; padding: 12px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; }
         .btn-menu { background: #219ebc; color: #fff; }
-        .btn-salir { background: #d90429; color: #fff; }
+        .btn-salir { background: #8d99ae; color: #fff; } /* Salir en un tono gris/neutro elegante en lugar de rojo */
     </style>
 </head>
 <body>
     <div class="container">
         <h2>{{ usuario.nombre }}</h2>
-        <p style="color: #aaa; font-size: 13px;">WhatsApp: {{ usuario.telefono }} | Estado: <span style="color: #4bb543; font-weight: bold;">{{ usuario.estado }}</span></p>
+        <p style="color: #aaa; font-size: 13px;">WhatsApp: {{ usuario.telefono }} | Estado: <span style="color: #ffb703; font-weight: bold;">{{ usuario.estado }}</span></p>
 
         <hr style="border-color: #333; margin: 20px 0;">
-
-        <!-- Selector de Estilo de Menú -->
-        <div style="background: #252525; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333;">
-            <h3 style="margin-top: 0; font-size: 16px;">🎨 Estilo de Carta Digital</h3>
-            <form action="/cambiar_plantilla" method="POST">
-                <select name="plantilla">
-                    <option value="carpinteria" {% if usuario.plantilla == 'carpinteria' %}selected{% endif %}>🪵 Carpintería / Rústico</option>
-                    <option value="restaurante" {% if usuario.plantilla == 'restaurante' %}selected{% endif %}>🍔 Restaurante / Comida</option>
-                    <option value="minimalista" {% if usuario.plantilla == 'minimalista' %}selected{% endif %}>✨ Servicios / General</option>
-                </select>
-                <button type="submit" style="background: #333; margin-top: 6px;">Guardar Estilo</button>
-            </form>
-            <div style="margin-top: 12px; text-align: center;">
-                <a href="/menu" target="_blank" style="color: #ff5722; font-weight: bold; text-decoration: none; font-size: 14px;">👁️ Ver Menú Público en vivo</a>
-            </div>
-        </div>
 
         <h3>+ Agregar Producto (Foto Obligatoria)</h3>
         <form action="/panel" method="POST" enctype="multipart/form-data">
@@ -51,7 +35,7 @@
             <input type="number" step="0.01" name="precio" placeholder="Precio ($ MXN)" required>
             <textarea name="descripcion" placeholder="Detalles, ingredientes o medidas..."></textarea>
             
-            <label style="font-size: 12px; color: #ff5722; display: block; margin-top: 6px; font-weight: bold;">Foto del producto (Requerida para la carta):</label>
+            <label style="font-size: 12px; color: #ffb703; display: block; margin-top: 6px; font-weight: bold;">Foto del producto (Requerida para la carta):</label>
             <input type="file" name="imagen" accept="image/*" required>
             
             <button type="submit">Guardar Producto</button>
@@ -71,7 +55,7 @@
                         {% endif %}
                         <div style="overflow: hidden;">
                             <strong style="font-size: 14px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ p.nombre_prod }}</strong>
-                            <span style="color: #ff5722; font-size: 13px; font-weight: bold;">${{ "%.2f"|format(p.precio) }} MXN</span><br>
+                            <span style="color: #ffb703; font-size: 13px; font-weight: bold;">${{ "%.2f"|format(p.precio) }} MXN</span><br>
                             <small style="color: #888; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">{{ p.descripcion }}</small>
                         </div>
                     </div>
