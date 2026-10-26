@@ -183,7 +183,7 @@ def cambiar_plantilla():
         db.session.commit()
     return redirect(url_for('panel'))
 
-# Menú público con diseño moderno de tarjetas estilo DiDi Food (Grid visual con fotos grandes arriba)
+# Menú público con diseño exacto de cuadrícula estilo DiDi Food
 HTML_MENU_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
@@ -192,43 +192,43 @@ HTML_MENU_TEMPLATE = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ usuario.nombre }} - Menú Digital</title>
     <style>
-        body { background: #121212; color: #f4f1ea; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; padding-bottom: 100px; }
-        .header { background: linear-gradient(135deg, #1e1e1e, #2d2d2d); border-bottom: 2px solid #ff7043; text-align: center; padding: 25px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .header h1 { margin: 0; font-size: 22px; color: #ff7043; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
-        .header p { margin: 6px 0 0; color: #bbb; font-size: 13px; }
+        body { background: #121212; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; padding-bottom: 100px; }
+        .header { background: #1a1a1a; border-bottom: 2px solid #ff5722; text-align: center; padding: 20px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .header h1 { margin: 0; font-size: 20px; color: #ff5722; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+        .header p { margin: 4px 0 0; color: #aaa; font-size: 12px; }
         
-        .container { max-width: 900px; margin: 20px auto; padding: 0 12px; }
+        .container { max-width: 800px; margin: 15px auto; padding: 0 10px; }
         
-        .grid-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+        .grid-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        @media (min-width: 600px) { .grid-menu { grid-template-columns: repeat(3, 1fr); } }
         
-        .food-card { background: #1e1e1e; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 15px rgba(0,0,0,0.4); display: flex; flex-direction: column; border: 1px solid #333; position: relative; }
-        .food-img-container { width: 100%; height: 170px; background: #2a2a2a; position: relative; overflow: hidden; }
+        .food-card { background: #1e1e1e; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; border: 1px solid #2c2c2c; }
+        .food-img-container { width: 100%; height: 140px; background: #252525; position: relative; overflow: hidden; }
         .food-img-container img { width: 100%; height: 100%; object-fit: cover; }
-        .no-img { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #777; font-size: 12px; background: #252525; }
+        .no-img { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #666; font-size: 11px; }
         
-        .food-body { padding: 14px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
-        .food-title { font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 4px; }
-        .food-desc { font-size: 12px; color: #aaa; margin: 0 0 12px; line-height: 1.4; }
+        .food-body { padding: 10px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
+        .food-title { font-size: 14px; font-weight: 700; color: #fff; margin: 0 0 2px; line-height: 1.2; }
+        .food-desc { font-size: 11px; color: #999; margin: 0 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
-        .food-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
-        .food-price { font-size: 17px; font-weight: 800; color: #ff7043; }
+        .food-footer { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+        .food-price { font-size: 15px; font-weight: 800; color: #ff5722; }
         
-        .qty-box { display: flex; align-items: center; background: #2a2a2a; border-radius: 8px; border: 1px solid #444; overflow: hidden; }
-        .qty-btn { background: #333; color: #fff; border: none; width: 32px; height: 32px; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .qty-btn:active { background: #ff7043; }
-        .qty-num { width: 32px; text-align: center; color: #fff; font-weight: bold; font-size: 14px; background: transparent; border: none; }
+        .qty-box { display: flex; align-items: center; justify-content: space-between; background: #2a2a2a; border-radius: 8px; border: 1px solid #444; overflow: hidden; width: 100%; }
+        .qty-btn { background: #ff5722; color: #fff; border: none; width: 34px; height: 32px; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .qty-btn:active { background: #e64a19; }
+        .qty-num { width: 30px; text-align: center; color: #fff; font-weight: bold; font-size: 13px; background: transparent; border: none; }
 
-        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 2px solid #333; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -6px 20px rgba(0,0,0,0.7); z-index: 1000; }
-        .total-info { font-size: 16px; font-weight: bold; color: #fff; }
-        .total-info span { color: #ff7043; font-size: 18px; }
-        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(37,211,102,0.3); }
-        .btn-whatsapp:hover { background: #20ba5a; }
+        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 2px solid #333; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.8); z-index: 1000; }
+        .total-info { font-size: 14px; font-weight: bold; color: #fff; }
+        .total-info span { color: #ff5722; font-size: 16px; }
+        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 8px rgba(37,211,102,0.3); }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>{{ usuario.nombre }}</h1>
-        <p>Selecciona tus productos y haz tu pedido al instante</p>
+        <p>Selecciona tus productos y pide al instante</p>
     </div>
     
     <div class="container">
@@ -246,10 +246,10 @@ HTML_MENU_TEMPLATE = """
                         <div class="food-body">
                             <div>
                                 <div class="food-title">{{ p.nombre_prod }}</div>
-                                <div class="food-desc">{{ p.descripcion or 'Producto de alta calidad' }}</div>
+                                <div class="food-desc">{{ p.descripcion or '' }}</div>
                             </div>
                             <div class="food-footer">
-                                <div class="food-price">${{ "%.2f"|format(p.precio) }}</div>
+                                <div class="food-price">${{ "%.2f"|format(p.precio) }} MXN</div>
                                 <div class="qty-box">
                                     <button type="button" class="qty-btn" onclick="cambiarQty({{ p.id }}, -1)">-</button>
                                     <input type="text" id="qty_{{ p.id }}" class="qty-num" value="0" readonly>
@@ -261,8 +261,8 @@ HTML_MENU_TEMPLATE = """
                 {% endfor %}
             </div>
         {% else %}
-            <div style="text-align: center; color: #888; margin-top: 50px; font-size: 15px;">
-                Aún no hay productos en este catálogo. ¡Agrega algunos desde tu panel!
+            <div style="text-align: center; color: #888; margin-top: 50px; font-size: 14px;">
+                Aún no hay productos en este catálogo.
             </div>
         {% endif %}
     </div>
@@ -272,7 +272,7 @@ HTML_MENU_TEMPLATE = """
             Total: $<span id="totalGeneral">0.00</span> MXN
         </div>
         <button type="button" class="btn-whatsapp" onclick="enviarPedido()">
-            📲 Enviar Pedido por WhatsApp
+            📲 Enviar Pedido
         </button>
     </div>
 
