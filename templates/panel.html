@@ -15,8 +15,8 @@
         
         .producto-item { display: flex; align-items: center; justify-content: space-between; background: #28211b; padding: 12px; margin-top: 12px; border-radius: 10px; border: 1px solid #3d2c1d; }
         .producto-item img { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; margin-right: 12px; background: #1a140f; }
-        .btn-eliminar { color: #ffb703; text-decoration: none; font-weight: bold; padding: 6px 12px; background: #3a2e00; border-radius: 6px; font-size: 12px; border: 1px solid #665200; }
-        .btn-eliminar:hover { background: #524000; }
+        .btn-eliminar { color: #ff5252; text-decoration: none; font-weight: bold; padding: 6px 12px; background: #2d1515; border-radius: 6px; font-size: 12px; border: 1px solid #552222; }
+        .btn-eliminar:hover { background: #421d1d; }
         
         .acciones { margin-top: 25px; display: flex; gap: 10px; }
         .acciones a { flex: 1; text-align: center; padding: 13px; text-decoration: none; border-radius: 8px; font-weight: 900; font-size: 14px; }
@@ -47,6 +47,7 @@
             </div>
         </div>
 
+        <!-- FORMULARIO CON ENCTYPE PARA GUARDAR FOTOS -->
         <h3>+ Agregar Pieza o Mueble (Foto Obligatoria)</h3>
         <form action="/" method="POST" enctype="multipart/form-data">
             <input type="text" name="nombre_prod" placeholder="Nombre (Ej. Mesa de Pino / Puerta a Medida)" required>
@@ -77,6 +78,7 @@
                             <small style="color: #b0a699; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">{{ p.descripcion }}</small>
                         </div>
                     </div>
+                    <!-- BOTÓN ELIMINAR RESTAURADO -->
                     <a href="/eliminar/{{ p.id }}" class="btn-eliminar">Eliminar</a>
                 </div>
             {% endfor %}
