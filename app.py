@@ -183,7 +183,7 @@ def cambiar_plantilla():
         db.session.commit()
     return redirect(url_for('panel'))
 
-# Menú público con diseño exacto de cuadrícula estilo DiDi Food
+# Menú público optimizado con visualización correcta de imágenes y tarjetas tipo app
 HTML_MENU_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
@@ -238,7 +238,7 @@ HTML_MENU_TEMPLATE = """
                     <div class="food-card">
                         <div class="food-img-container">
                             {% if p.imagen %}
-                                <img src="{{ p.imagen }}" alt="{{ p.nombre_prod }}">
+                                <img src="{{ p.imagen if p.imagen.startswith('http') or p.imagen.startswith('/') else '/' + p.imagen }}" alt="{{ p.nombre_prod }}">
                             {% else %}
                                 <div class="no-img">Sin Imagen</div>
                             {% endif %}
