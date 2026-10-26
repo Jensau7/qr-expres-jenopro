@@ -1,13 +1,12 @@
 import os
+import base64
 import traceback
 from flask import Flask, render_template, request, redirect, url_for, render_template_string
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'clave_super_segura_jenopro'
 
-# Configuración de base de datos con SSL
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
@@ -19,12 +18,6 @@ if database_url and "postgresql://" in database_url and "sslmode" not in databas
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Carpeta absoluta para evitar problemas con las rutas en Render
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 db = SQLAlchemy(app)
 
 class Producto(db.Model):
@@ -32,7 +25,7 @@ class Producto(db.Model):
     nombre_prod = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(255), nullable=True)
-    imagen = db.Column(db.String(200), nullable=True)
+    imagen = db.Column(db.Text, nullable=True)  # Guardamos la imagen en Base64 directamente en la BD
 
 with app.app_context():
     db.create_all()
@@ -53,21 +46,23 @@ def panel():
         precio = request.form.get('precio')
         descripcion = request.form.get('descripcion')
         
-        imagen_path = None
+        imagen_data = None
         if 'imagen' in request.files:
             file = request.files['imagen']
             if file and file.filename != '':
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                # Guardamos la ruta web relativa limpia
-                imagen_path = f'static/uploads/{filename}'
+                # Convertimos la foto directamente a texto Base64 para que nunca se borre en Render
+                file_bytes = file.read()
+                encoded = base64.b64encode(file_bytes).decode('utf-8')
+                # Detectamos el tipo de imagen automáticamente
+                mimetype = file.mimetype or 'image/jpeg'
+                imagen_data = f"data:{mimetype};base64,{encoded}"
 
         try:
             nuevo_prod = Producto(
                 nombre_prod=nombre_prod,
                 precio=float(precio or 0),
                 descripcion=descripcion,
-                imagen=imagen_path
+                imagen=imagen_data
             )
             db.session.add(nuevo_prod)
             db.session.commit()
@@ -83,19 +78,10 @@ def panel():
 def eliminar_producto(id):
     producto = Producto.query.get(id)
     if producto:
-        # Intentar borrar el archivo físico si existe
-        if producto.imagen:
-            try:
-                full_path = os.path.join(app.root_path, producto.imagen)
-                if os.path.exists(full_path):
-                    os.remove(full_path)
-            except Exception:
-                pass
         db.session.delete(producto)
         db.session.commit()
     return redirect(url_for('panel'))
 
-# Menú / Catálogo Público con diseño artesanal de madera
 HTML_MENU_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
@@ -153,7 +139,7 @@ HTML_MENU_TEMPLATE = """
                     <div class="wood-card">
                         <div class="wood-img-container">
                             {% if p.imagen %}
-                                <img src="/{{ p.imagen }}" alt="{{ p.nombre_prod }}">
+                                <img src="{{ p.imagen }}" alt="{{ p.nombre_prod }}">
                             {% else %}
                                 <div class="no-img">Pieza Artesanal</div>
                             {% endif %}
