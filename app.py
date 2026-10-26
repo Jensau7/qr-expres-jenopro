@@ -183,72 +183,97 @@ def cambiar_plantilla():
         db.session.commit()
     return redirect(url_for('panel'))
 
-# Menú público interativo con selector de cantidades y total en tiempo real
+# Menú público con diseño moderno de tarjetas estilo DiDi Food (Grid visual con fotos grandes arriba)
 HTML_MENU_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ usuario.nombre }} - Catálogo Digital</title>
+    <title>{{ usuario.nombre }} - Menú Digital</title>
     <style>
-        body { background: #121212; color: #f4f1ea; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; padding-bottom: 95px; }
-        .header { background: linear-gradient(135deg, #2c1d11, #4a2e18); border-bottom: 3px solid #b07d62; text-align: center; padding: 25px 15px; }
-        .header h1 { margin: 0; font-size: 24px; color: #d4a373; text-transform: uppercase; letter-spacing: 1px; }
-        .header p { margin: 5px 0 0; color: #dda15e; font-size: 13px; }
-        .container { max-width: 600px; margin: 15px auto; padding: 0 10px; }
-        .card { background: #1e1e1e; border: 1px solid #333; border-radius: 10px; overflow: hidden; margin-bottom: 15px; display: flex; align-items: center; padding: 12px; gap: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); }
-        .card img { width: 85px; height: 85px; object-fit: cover; border-radius: 8px; background: #2a2a2a; }
-        .card-info { flex: 1; }
-        .card-title { font-size: 16px; font-weight: bold; color: #fff; margin: 0 0 4px; }
-        .card-desc { font-size: 12px; color: #aaa; margin: 0 0 8px; }
-        .card-price { font-size: 15px; font-weight: bold; color: #dda15e; }
-        .qty-control { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-        .qty-btn { background: #333; color: #fff; border: none; width: 28px; height: 28px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; }
-        .qty-btn:active { background: #555; }
-        .qty-input { width: 38px; text-align: center; background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 4px; font-size: 14px; padding: 3px; }
-        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 2px solid #333; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.5); z-index: 1000; }
-        .total-text { font-size: 15px; font-weight: bold; color: #fff; }
-        .btn-enviar { background: #25d366; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        body { background: #121212; color: #f4f1ea; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; padding-bottom: 100px; }
+        .header { background: linear-gradient(135deg, #1e1e1e, #2d2d2d); border-bottom: 2px solid #ff7043; text-align: center; padding: 25px 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .header h1 { margin: 0; font-size: 22px; color: #ff7043; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
+        .header p { margin: 6px 0 0; color: #bbb; font-size: 13px; }
+        
+        .container { max-width: 900px; margin: 20px auto; padding: 0 12px; }
+        
+        .grid-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+        
+        .food-card { background: #1e1e1e; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 15px rgba(0,0,0,0.4); display: flex; flex-direction: column; border: 1px solid #333; position: relative; }
+        .food-img-container { width: 100%; height: 170px; background: #2a2a2a; position: relative; overflow: hidden; }
+        .food-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .no-img { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #777; font-size: 12px; background: #252525; }
+        
+        .food-body { padding: 14px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
+        .food-title { font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 4px; }
+        .food-desc { font-size: 12px; color: #aaa; margin: 0 0 12px; line-height: 1.4; }
+        
+        .food-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .food-price { font-size: 17px; font-weight: 800; color: #ff7043; }
+        
+        .qty-box { display: flex; align-items: center; background: #2a2a2a; border-radius: 8px; border: 1px solid #444; overflow: hidden; }
+        .qty-btn { background: #333; color: #fff; border: none; width: 32px; height: 32px; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .qty-btn:active { background: #ff7043; }
+        .qty-num { width: 32px; text-align: center; color: #fff; font-weight: bold; font-size: 14px; background: transparent; border: none; }
+
+        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; border-top: 2px solid #333; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -6px 20px rgba(0,0,0,0.7); z-index: 1000; }
+        .total-info { font-size: 16px; font-weight: bold; color: #fff; }
+        .total-info span { color: #ff7043; font-size: 18px; }
+        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(37,211,102,0.3); }
+        .btn-whatsapp:hover { background: #20ba5a; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>{{ usuario.nombre }}</h1>
-        <p>Selecciona las cantidades y haz tu pedido por WhatsApp</p>
+        <p>Selecciona tus productos y haz tu pedido al instante</p>
     </div>
     
     <div class="container">
         {% if productos %}
-            {% for p in productos %}
-                <div class="card">
-                    {% if p.imagen %}
-                        <img src="{{ p.imagen }}" alt="{{ p.nombre_prod }}">
-                    {% else %}
-                        <div style="width: 85px; height: 85px; background: #2a2a2a; display: flex; align-items: center; justify-content: center; color: #666; border-radius: 8px; font-size: 11px;">Sin Foto</div>
-                    {% endif %}
-                    <div class="card-info">
-                        <div class="card-title">{{ p.nombre_prod }}</div>
-                        <div class="card-desc">{{ p.descripcion or '' }}</div>
-                        <div class="card-price">${{ "%.2f"|format(p.precio) }} MXN</div>
-                        <div class="qty-control">
-                            <button type="button" class="qty-btn" onclick="cambiarQty({{ p.id }}, -1)">-</button>
-                            <input type="text" id="qty_{{ p.id }}" class="qty-input" value="0" readonly>
-                            <button type="button" class="qty-btn" onclick="cambiarQty({{ p.id }}, 1)">+</button>
+            <div class="grid-menu">
+                {% for p in productos %}
+                    <div class="food-card">
+                        <div class="food-img-container">
+                            {% if p.imagen %}
+                                <img src="{{ p.imagen }}" alt="{{ p.nombre_prod }}">
+                            {% else %}
+                                <div class="no-img">Sin Imagen</div>
+                            {% endif %}
+                        </div>
+                        <div class="food-body">
+                            <div>
+                                <div class="food-title">{{ p.nombre_prod }}</div>
+                                <div class="food-desc">{{ p.descripcion or 'Producto de alta calidad' }}</div>
+                            </div>
+                            <div class="food-footer">
+                                <div class="food-price">${{ "%.2f"|format(p.precio) }}</div>
+                                <div class="qty-box">
+                                    <button type="button" class="qty-btn" onclick="cambiarQty({{ p.id }}, -1)">-</button>
+                                    <input type="text" id="qty_{{ p.id }}" class="qty-num" value="0" readonly>
+                                    <button type="button" class="qty-btn" onclick="cambiarQty({{ p.id }}, 1)">+</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         {% else %}
-            <p style="text-align: center; color: #888; margin-top: 40px;">No hay productos disponibles en este catálogo.</p>
+            <div style="text-align: center; color: #888; margin-top: 50px; font-size: 15px;">
+                Aún no hay productos en este catálogo. ¡Agrega algunos desde tu panel!
+            </div>
         {% endif %}
     </div>
 
     <div class="floating-bar">
-        <div>
-            <div class="total-text">Total: $<span id="totalGeneral">0.00</span> MXN</div>
+        <div class="total-info">
+            Total: $<span id="totalGeneral">0.00</span> MXN
         </div>
-        <button type="button" class="btn-enviar" onclick="enviarPedido()">📲 Enviar Pedido</button>
+        <button type="button" class="btn-whatsapp" onclick="enviarPedido()">
+            📲 Enviar Pedido por WhatsApp
+        </button>
     </div>
 
     <script>
