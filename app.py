@@ -19,10 +19,11 @@ if database_url and "postgresql://" in database_url and "sslmode" not in databas
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-UPLOAD_FOLDER = 'static/uploads'
+# Carpeta absoluta para evitar problemas con las rutas en Render
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-os.makedirs(os.path.join(app.root_path, UPLOAD_FOLDER), exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 db = SQLAlchemy(app)
 
@@ -45,7 +46,6 @@ def handle_exception(e):
     tb = traceback.format_exc()
     return f"<h2>Error Interno Detectado:</h2><pre>{tb}</pre>", 500
 
-# Panel de administración directo (Sin logins ni contraseñas)
 @app.route('/', methods=['GET', 'POST'])
 def panel():
     if request.method == 'POST':
@@ -53,20 +53,21 @@ def panel():
         precio = request.form.get('precio')
         descripcion = request.form.get('descripcion')
         
-        imagen_url = None
+        imagen_path = None
         if 'imagen' in request.files:
             file = request.files['imagen']
             if file and file.filename != '':
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                imagen_url = url_for('static', filename=f'uploads/{filename}')
+                # Guardamos la ruta web relativa limpia
+                imagen_path = f'static/uploads/{filename}'
 
         try:
             nuevo_prod = Producto(
                 nombre_prod=nombre_prod,
                 precio=float(precio or 0),
                 descripcion=descripcion,
-                imagen=imagen_url
+                imagen=imagen_path
             )
             db.session.add(nuevo_prod)
             db.session.commit()
@@ -82,11 +83,19 @@ def panel():
 def eliminar_producto(id):
     producto = Producto.query.get(id)
     if producto:
+        # Intentar borrar el archivo físico si existe
+        if producto.imagen:
+            try:
+                full_path = os.path.join(app.root_path, producto.imagen)
+                if os.path.exists(full_path):
+                    os.remove(full_path)
+            except Exception:
+                pass
         db.session.delete(producto)
         db.session.commit()
     return redirect(url_for('panel'))
 
-# Menú / Catálogo Público con diseño de alta categoría (Estilo App Profesional)
+# Menú / Catálogo Público con diseño artesanal de madera
 HTML_MENU_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
@@ -144,7 +153,7 @@ HTML_MENU_TEMPLATE = """
                     <div class="wood-card">
                         <div class="wood-img-container">
                             {% if p.imagen %}
-                                <img src="{{ p.imagen if p.imagen.startswith('http') or p.imagen.startswith('/') else '/' + p.imagen }}" alt="{{ p.nombre_prod }}">
+                                <img src="/{{ p.imagen }}" alt="{{ p.nombre_prod }}">
                             {% else %}
                                 <div class="no-img">Pieza Artesanal</div>
                             {% endif %}
@@ -233,7 +242,7 @@ HTML_MENU_TEMPLATE = """
             }
 
             mensaje += `%0A*Inversión Total: $${total.toFixed(2)} MXN*`;
-            const telefono = "6143665161"; // Tu número directo de WhatsApp
+            const telefono = "6143665161";
             window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
         }
     </script>
