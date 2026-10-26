@@ -47,7 +47,6 @@
             </div>
         </div>
 
-        <!-- FORMULARIO CON ENCTYPE PARA GUARDAR FOTOS -->
         <h3>+ Agregar Pieza o Mueble (Foto Obligatoria)</h3>
         <form action="/" method="POST" enctype="multipart/form-data">
             <input type="text" name="nombre_prod" placeholder="Nombre (Ej. Mesa de Pino / Puerta a Medida)" required>
@@ -68,7 +67,7 @@
                 <div class="producto-item">
                     <div style="display: flex; align-items: center; flex: 1; overflow: hidden;">
                         {% if p.imagen %}
-                            <img src="{{ p.imagen if p.imagen.startswith('http') or p.imagen.startswith('/') else '/' + p.imagen }}" alt="{{ p.nombre_prod }}">
+                            <img src="/{{ p.imagen }}" alt="{{ p.nombre_prod }}">
                         {% else %}
                             <div style="width: 65px; height: 65px; background: #1a140f; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-right: 12px; font-size: 10px; color: #8c7a6b;">Sin foto</div>
                         {% endif %}
@@ -78,7 +77,6 @@
                             <small style="color: #b0a699; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">{{ p.descripcion }}</small>
                         </div>
                     </div>
-                    <!-- BOTÓN ELIMINAR RESTAURADO -->
                     <a href="/eliminar/{{ p.id }}" class="btn-eliminar">Eliminar</a>
                 </div>
             {% endfor %}
@@ -92,7 +90,6 @@
     </div>
 
     <script>
-        // Generar automáticamente el QR basado en la dirección web actual del catálogo
         const menuUrl = window.location.origin + '/menu';
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(menuUrl)}`;
         document.getElementById('qr-link').href = menuUrl;
