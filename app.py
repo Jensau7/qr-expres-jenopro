@@ -3,6 +3,7 @@ import base64
 import traceback
 from flask import Flask, render_template, request, redirect, url_for, render_template_string
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 
 app = Flask(__name__)
 app.secret_key = 'clave_super_segura_jenopro'
@@ -25,10 +26,17 @@ class Producto(db.Model):
     nombre_prod = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(255), nullable=True)
-    imagen = db.Column(db.Text, nullable=True) # Guardado seguro en Base64
+    imagen = db.Column(db.Text, nullable=True)
 
 with app.app_context():
     db.create_all()
+    # Forzamos a PostgreSQL a ampliar la columna imagen a tipo TEXT sin límite de caracteres
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE producto ALTER COLUMN imagen TYPE TEXT;"))
+            conn.commit()
+    except Exception as e:
+        print(f"Nota de migración: {e}")
 
 @app.errorhandler(404)
 def page_not_found(e):
