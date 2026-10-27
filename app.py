@@ -25,7 +25,7 @@ class Producto(db.Model):
     nombre_prod = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(255), nullable=True)
-    imagen = db.Column(db.Text, nullable=True)  # Guardamos la imagen en Base64 directamente en la BD
+    imagen = db.Column(db.Text, nullable=True)
 
 with app.app_context():
     db.create_all()
@@ -50,10 +50,8 @@ def panel():
         if 'imagen' in request.files:
             file = request.files['imagen']
             if file and file.filename != '':
-                # Convertimos la foto directamente a texto Base64 para que nunca se borre en Render
                 file_bytes = file.read()
                 encoded = base64.b64encode(file_bytes).decode('utf-8')
-                # Detectamos el tipo de imagen automáticamente
                 mimetype = file.mimetype or 'image/jpeg'
                 imagen_data = f"data:{mimetype};base64,{encoded}"
 
