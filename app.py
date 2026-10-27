@@ -25,7 +25,7 @@ class Producto(db.Model):
     nombre_prod = db.Column(db.String(100), nullable=False)
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(255), nullable=True)
-    imagen = db.Column(db.Text, nullable=True)
+    imagen = db.Column(db.Text, nullable=True) # Guardado seguro en Base64
 
 with app.app_context():
     db.create_all()
@@ -50,10 +50,13 @@ def panel():
         if 'imagen' in request.files:
             file = request.files['imagen']
             if file and file.filename != '':
-                file_bytes = file.read()
-                encoded = base64.b64encode(file_bytes).decode('utf-8')
-                mimetype = file.mimetype or 'image/jpeg'
-                imagen_data = f"data:{mimetype};base64,{encoded}"
+                try:
+                    file_bytes = file.read()
+                    encoded = base64.b64encode(file_bytes).decode('utf-8')
+                    mimetype = file.mimetype or 'image/jpeg'
+                    imagen_data = f"data:{mimetype};base64,{encoded}"
+                except Exception as img_err:
+                    print(f"Error procesando imagen: {img_err}")
 
         try:
             nuevo_prod = Producto(
@@ -66,6 +69,7 @@ def panel():
             db.session.commit()
         except Exception as e:
             db.session.rollback()
+            return f"<h2>Error al guardar en BD:</h2><pre>{traceback.format_exc()}</pre>", 500
             
         return redirect(url_for('panel'))
 
@@ -92,36 +96,25 @@ HTML_MENU_TEMPLATE = """
         .header { background: linear-gradient(135deg, #2c1d11, #1a120b); border-bottom: 3px solid #dda15e; text-align: center; padding: 30px 15px; box-shadow: 0 6px 15px rgba(0,0,0,0.6); }
         .header h1 { margin: 0; font-size: 24px; color: #dda15e; text-transform: uppercase; font-weight: 900; letter-spacing: 1.5px; }
         .header p { margin: 8px 0 0; color: #bc6c25; font-size: 13px; font-weight: 600; }
-        
         .container { max-width: 900px; margin: 20px auto; padding: 0 12px; }
-        
         .grid-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         @media (min-width: 600px) { .grid-menu { grid-template-columns: repeat(3, 1fr); } }
-        
-        .wood-card { background: #1e1b18; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; border: 1px solid #3d2c1d; transition: transform 0.2s; }
-        .wood-card:hover { transform: translateY(-3px); }
-        
+        .wood-card { background: #1e1b18; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; border: 1px solid #3d2c1d; }
         .wood-img-container { width: 100%; height: 160px; background: #28211b; position: relative; overflow: hidden; }
         .wood-img-container img { width: 100%; height: 100%; object-fit: cover; }
         .no-img { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #8c7a6b; font-size: 12px; font-style: italic; }
-        
         .wood-body { padding: 14px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
         .wood-title { font-size: 15px; font-weight: 800; color: #fefae0; margin: 0 0 4px; line-height: 1.3; }
-        .wood-desc { font-size: 11px; color: #b0a699; margin: 0 0 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
-        
+        .wood-desc { font-size: 11px; color: #b0a699; margin: 0 0 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .wood-footer { display: flex; flex-direction: column; gap: 10px; margin-top: auto; border-top: 1px solid #2d241d; padding-top: 10px; }
         .wood-price { font-size: 16px; font-weight: 950; color: #dda15e; }
-        
         .qty-box { display: flex; align-items: center; justify-content: space-between; background: #28211b; border-radius: 8px; border: 1px solid #4a3828; overflow: hidden; width: 100%; }
         .qty-btn { background: #dda15e; color: #1a120b; border: none; width: 36px; height: 34px; font-weight: 900; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .qty-btn:active { background: #bc6c25; }
         .qty-num { width: 35px; text-align: center; color: #fff; font-weight: bold; font-size: 14px; background: transparent; border: none; }
-
-        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a140f; border-top: 2px solid #dda15e; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -6px 25px rgba(0,0,0,0.8); z-index: 1000; }
+        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a140f; border-top: 2px solid #dda15e; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
         .total-info { font-size: 15px; font-weight: bold; color: #fff; }
         .total-info span { color: #dda15e; font-size: 18px; font-weight: 900; }
-        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 900; font-size: 14px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,211,102,0.4); }
-        .btn-whatsapp:hover { background: #20ba5a; }
+        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 900; font-size: 14px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
@@ -129,7 +122,6 @@ HTML_MENU_TEMPLATE = """
         <h1>INGENIO EN MADERA</h1>
         <p>Carpintería y Restauración de Muebles | Diseños a Medida</p>
     </div>
-    
     <div class="container">
         {% if productos %}
             <div class="grid-menu">
@@ -165,7 +157,6 @@ HTML_MENU_TEMPLATE = """
             </div>
         {% endif %}
     </div>
-
     <div class="floating-bar">
         <div class="total-info">
             Inversión Total: $<span id="totalGeneral">0.00</span> MXN
@@ -174,14 +165,12 @@ HTML_MENU_TEMPLATE = """
             📲 Cotizar / Pedir por WhatsApp
         </button>
     </div>
-
     <script>
         const productosData = {
             {% for p in productos %}
             "{{ p.id }}": { nombre: "{{ p.nombre_prod }}", precio: {{ p.precio }} },
             {% endfor %}
         };
-
         function cambiarQty(id, cambio) {
             const input = document.getElementById('qty_' + id);
             let val = parseInt(input.value) + cambio;
@@ -189,7 +178,6 @@ HTML_MENU_TEMPLATE = """
             input.value = val;
             calcularTotal();
         }
-
         function calcularTotal() {
             let total = 0;
             for (let id in productosData) {
@@ -201,12 +189,10 @@ HTML_MENU_TEMPLATE = """
             }
             document.getElementById('totalGeneral').innerText = total.toFixed(2);
         }
-
         function enviarPedido() {
             let mensaje = "Hola, me interesa cotizar / ordenar lo siguiente:%0A";
             let hayItems = false;
             let total = 0;
-
             for (let id in productosData) {
                 const input = document.getElementById('qty_' + id);
                 if (input) {
@@ -219,12 +205,10 @@ HTML_MENU_TEMPLATE = """
                     }
                 }
             }
-
             if (!hayItems) {
                 alert("Por favor selecciona al menos una pieza o mueble antes de enviar tu cotización.");
                 return;
             }
-
             mensaje += `%0A*Inversión Total: $${total.toFixed(2)} MXN*`;
             const telefono = "6143665161";
             window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
