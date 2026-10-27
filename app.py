@@ -27,13 +27,15 @@ class Producto(db.Model):
     precio = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(255), nullable=True)
     imagen = db.Column(db.Text, nullable=True)
+    usuario_id = db.Column(db.Integer, nullable=True)  # Ahora es opcional para evitar el error
 
 with app.app_context():
     db.create_all()
-    # Forzamos a PostgreSQL a ampliar la columna imagen a tipo TEXT sin límite de caracteres
+    # Actualizamos automáticamente la base de datos en Render
     try:
         with db.engine.connect() as conn:
             conn.execute(text("ALTER TABLE producto ALTER COLUMN imagen TYPE TEXT;"))
+            conn.execute(text("ALTER TABLE producto ALTER COLUMN usuario_id DROP NOT NULL;"))
             conn.commit()
     except Exception as e:
         print(f"Nota de migración: {e}")
